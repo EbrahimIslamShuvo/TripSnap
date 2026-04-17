@@ -1,0 +1,7 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+
+.ubuntu {
+  font-family: "Ubuntu", sans-serif;
+}
