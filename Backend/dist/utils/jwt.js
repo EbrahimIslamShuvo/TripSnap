@@ -6,15 +6,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyToken = exports.createToken = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
-// 🔥 CREATE TOKEN
 const createToken = (payload) => {
+    if (!JWT_SECRET) {
+        throw new Error("JWT_SECRET not found ❌");
+    }
     return jsonwebtoken_1.default.sign(payload, JWT_SECRET, {
-        expiresIn: JWT_EXPIRES_IN,
+        expiresIn: "7d",
     });
 };
 exports.createToken = createToken;
-// 🔥 VERIFY TOKEN
 const verifyToken = (token) => {
     return jsonwebtoken_1.default.verify(token, JWT_SECRET);
 };

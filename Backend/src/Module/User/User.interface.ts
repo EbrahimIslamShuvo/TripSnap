@@ -12,7 +12,6 @@ export interface IUser {
 
   isVerified: boolean;
 
-  // NEW
   bio?: string;
 
   social?: {

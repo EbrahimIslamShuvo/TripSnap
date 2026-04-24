@@ -7,6 +7,7 @@ exports.sendEmail = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const sendEmail = async (to, otp) => {
     try {
+        console.log("📧 Trying to send email...");
         const transporter = nodemailer_1.default.createTransport({
             host: "smtp.gmail.com",
             port: 587,
@@ -16,16 +17,16 @@ const sendEmail = async (to, otp) => {
                 pass: process.env.EMAIL_PASS,
             },
         });
-        await transporter.sendMail({
+        const info = await transporter.sendMail({
             from: `"TripSnap" <${process.env.EMAIL_USER}>`,
             to,
             subject: "Your OTP Code",
             html: `<h2>Your OTP is: ${otp}</h2>`,
         });
-        console.log("✅ Email sent");
+        console.log("✅ Email sent:", info.response);
     }
-    catch (err) {
-        console.error("❌ Email error:", err);
+    catch (error) {
+        console.error("❌ Email error:", error);
     }
 };
 exports.sendEmail = sendEmail;

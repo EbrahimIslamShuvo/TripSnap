@@ -8,7 +8,14 @@ export interface IUser {
         status: "free" | "active" | "expired";
     };
     isVerified: boolean;
-    otp?: string;
-    otpExpires?: Date;
+    bio?: string;
+    social?: {
+        facebook?: string;
+        instagram?: string;
+        twitter?: string;
+        youtube?: string;
+    };
+    otp?: string | undefined;
+    otpExpires?: Date | undefined;
 }
 //# sourceMappingURL=User.interface.d.ts.map

@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const User_service_1 = require("./User.service");
+// REGISTER
 const register = async (req, res) => {
     try {
         const image = req.file?.path;
@@ -9,57 +10,128 @@ const register = async (req, res) => {
             ...req.body,
             image,
         });
-        res.json({ success: true, data: result });
+        res.json({
+            success: true,
+            message: "OTP sent",
+            data: result,
+        });
     }
     catch (err) {
-        res.status(400).json({ message: err.message });
+        res.status(400).json({
+            success: false,
+            message: err.message,
+        });
     }
 };
-const verifyOTP = async (req, res) => {
-    try {
-        await User_service_1.UserService.verifyOTP(req.body.email, req.body.otp);
-        res.json({ success: true });
-    }
-    catch (err) {
-        res.status(400).json({ message: err.message });
-    }
-};
+// LOGIN (NO OTP)
 const login = async (req, res) => {
     try {
         const result = await User_service_1.UserService.loginUser(req.body);
         res.json({
             success: true,
+            message: "Login successful",
             token: result.token,
-            data: result.user,
+            user: result.user,
         });
     }
     catch (err) {
-        res.status(400).json({ message: err.message });
+        res.status(400).json({
+            success: false,
+            message: err.message,
+        });
     }
 };
+// FORGOT PASSWORD
 const forgotPassword = async (req, res) => {
     try {
         await User_service_1.UserService.forgotPassword(req.body.email);
-        res.json({ success: true });
+        res.json({
+            success: true,
+            message: "OTP sent to email",
+        });
     }
     catch (err) {
-        res.status(400).json({ message: err.message });
+        res.status(400).json({
+            success: false,
+            message: err.message,
+        });
     }
 };
-const resetPassword = async (req, res) => {
+// VERIFY OTP
+const verifyOTP = async (req, res) => {
     try {
-        await User_service_1.UserService.resetPassword(req.body.email, req.body.otp, req.body.newPassword);
-        res.json({ success: true });
+        const { email, otp } = req.body;
+        await User_service_1.UserService.verifyOTP(email, otp);
+        res.json({
+            success: true,
+            message: "OTP verified",
+        });
     }
     catch (err) {
-        res.status(400).json({ message: err.message });
+        res.status(400).json({
+            success: false,
+            message: err.message,
+        });
+    }
+};
+// RESET PASSWORD
+const resetPassword = async (req, res) => {
+    try {
+        const { email, otp, newPassword } = req.body;
+        await User_service_1.UserService.resetPassword(email, otp, newPassword);
+        res.json({
+            success: true,
+            message: "Password updated",
+        });
+    }
+    catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message,
+        });
+    }
+};
+const updateProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const result = await User_service_1.UserService.updateProfile(userId, req.body, req.file);
+        res.json({
+            success: true,
+            message: "Profile updated",
+            user: result,
+        });
+    }
+    catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message,
+        });
+    }
+};
+const changePassword = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { oldPassword, newPassword } = req.body;
+        await User_service_1.UserService.changePassword(userId, oldPassword, newPassword);
+        res.json({
+            success: true,
+            message: "Password changed",
+        });
+    }
+    catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message,
+        });
     }
 };
 exports.UserController = {
     register,
-    verifyOTP,
     login,
     forgotPassword,
+    verifyOTP,
     resetPassword,
+    updateProfile,
+    changePassword
 };
 //# sourceMappingURL=User.controller.js.map

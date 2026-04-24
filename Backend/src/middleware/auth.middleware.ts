@@ -32,11 +32,11 @@ export const authMiddleware = async (
     }
 
     req.user = user;
-    console.log("TOKEN RECEIVED:", token);
+    //console.log("TOKEN RECEIVED:", token);
 
     next();
   } catch (error) {
-    console.log("AUTH ERROR:", error); // 🔍 debug
+    //console.log("AUTH ERROR:", error); // 🔍 debug
 
     return res.status(401).json({
       message: "Invalid token",

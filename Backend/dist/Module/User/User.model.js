@@ -40,6 +40,13 @@ const userSchema = new mongoose_1.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     image: { type: String },
+    bio: { type: String },
+    social: {
+        facebook: { type: String },
+        instagram: { type: String },
+        twitter: { type: String },
+        youtube: { type: String },
+    },
     role: {
         type: String,
         enum: ["user", "traveler", "admin"],

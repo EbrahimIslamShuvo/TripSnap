@@ -39,7 +39,7 @@ const registerUser = async (payload: any) => {
 
 // ================= LOGIN =================
 const loginUser = async (payload: any) => {
-  console.log("🔐 LOGIN START");
+  //console.log("🔐 LOGIN START");
 
   const user = await User.findOne({ email: payload.email });
   //console.log("👤 USER:", user);
@@ -56,7 +56,7 @@ const loginUser = async (payload: any) => {
     user.password
   );
 
-  console.log("✅ MATCH:", isMatch);
+  //console.log("✅ MATCH:", isMatch);
 
   if (!isMatch) {
     throw new Error("Invalid credentials");

@@ -6,107 +6,139 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const User_model_1 = require("./User.model");
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const jwt_1 = require("../../utils/jwt");
-const otp_1 = require("../../utils/otp");
 const sendEmail_1 = require("../../utils/sendEmail");
-// 🔥 REGISTER + SEND OTP
+const jwt_1 = require("../../utils/jwt");
+// 🔥 GENERATE OTP
+const generateOTP = () => {
+    return Math.floor(1000 + Math.random() * 9000).toString();
+};
+// ================= REGISTER =================
 const registerUser = async (payload) => {
-    const existingUser = await User_model_1.User.findOne({ email: payload.email });
-    if (existingUser) {
+    const exist = await User_model_1.User.findOne({ email: payload.email });
+    if (exist && exist.isVerified) {
         throw new Error("User already exists");
     }
-    const otp = (0, otp_1.generateOTP)();
-    const hashedPassword = await bcrypt_1.default.hash(payload.password, 10);
-    const user = await User_model_1.User.create({
+    const hashed = await bcrypt_1.default.hash(payload.password, 10);
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    const user = await User_model_1.User.findOneAndUpdate({ email: payload.email }, {
         ...payload,
-        password: hashedPassword,
+        password: hashed,
         otp,
         otpExpires: new Date(Date.now() + 5 * 60 * 1000),
         isVerified: false,
-    });
-    await (0, sendEmail_1.sendEmail)(user.email, otp);
+    }, { upsert: true, new: true });
+    await (0, sendEmail_1.sendEmail)(payload.email, otp);
     return user;
 };
-// 🔥 VERIFY OTP
-const verifyOTP = async (email, otp) => {
-    const user = await User_model_1.User.findOne({ email });
-    if (!user)
-        throw new Error("User not found");
-    if (!user.otp || !user.otpExpires) {
-        throw new Error("OTP not found");
-    }
-    if (user.otp !== otp) {
-        throw new Error("Invalid OTP");
-    }
-    if (user.otpExpires < new Date()) {
-        throw new Error("OTP expired");
-    }
-    user.isVerified = true;
-    // ✅ delete instead of undefined
-    delete user.otp;
-    delete user.otpExpires;
-    await user.save();
-    return true;
-};
-// 🔥 LOGIN
+// ================= LOGIN =================
 const loginUser = async (payload) => {
+    console.log("🔐 LOGIN START");
     const user = await User_model_1.User.findOne({ email: payload.email });
-    if (!user)
+    //console.log("👤 USER:", user);
+    if (!user) {
         throw new Error("User not found");
-    if (!user.isVerified) {
-        throw new Error("Please verify your email first");
     }
+    //console.log("🔑 INPUT PASSWORD:", payload.password);
+    //console.log("🔑 DB PASSWORD:", user.password);
     const isMatch = await bcrypt_1.default.compare(payload.password, user.password);
+    console.log("✅ MATCH:", isMatch);
     if (!isMatch) {
         throw new Error("Invalid credentials");
     }
+    if (!user.isVerified) {
+        throw new Error("Please verify OTP first");
+    }
+    //console.log("🚀 BEFORE TOKEN");
     const token = (0, jwt_1.createToken)({
         id: user._id,
         role: user.role,
     });
+    //console.log("🎉 TOKEN:", token);
     return {
         user,
         token,
     };
 };
-// 🔥 FORGOT PASSWORD (SEND OTP)
+// ================= FORGOT PASSWORD =================
 const forgotPassword = async (email) => {
     const user = await User_model_1.User.findOne({ email });
     if (!user)
         throw new Error("User not found");
-    const otp = (0, otp_1.generateOTP)();
+    const otp = generateOTP();
     user.otp = otp;
     user.otpExpires = new Date(Date.now() + 5 * 60 * 1000);
     await user.save();
     await (0, sendEmail_1.sendEmail)(email, otp);
-    return true;
 };
-// 🔥 RESET PASSWORD
+// ================= VERIFY OTP =================
+const verifyOTP = async (email, otp) => {
+    const user = await User_model_1.User.findOne({ email });
+    if (!user)
+        throw new Error("User not found");
+    if (user.otp !== otp)
+        throw new Error("Invalid OTP");
+    if (!user.otpExpires || user.otpExpires < new Date())
+        throw new Error("OTP expired");
+    user.isVerified = true;
+    await user.save();
+};
+// ================= RESET PASSWORD =================
 const resetPassword = async (email, otp, newPassword) => {
     const user = await User_model_1.User.findOne({ email });
     if (!user)
         throw new Error("User not found");
-    if (!user.otp || !user.otpExpires) {
-        throw new Error("OTP not found");
-    }
-    if (user.otp !== otp) {
+    if (user.otp !== otp)
         throw new Error("Invalid OTP");
-    }
-    if (user.otpExpires < new Date()) {
+    if (!user.otpExpires || user.otpExpires < new Date())
         throw new Error("OTP expired");
+    user.password = await bcrypt_1.default.hash(newPassword, 10);
+    // 🔥 ekhane clear korba
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+};
+const updateProfile = async (userId, payload, file) => {
+    const user = await User_model_1.User.findById(userId);
+    if (!user)
+        throw new Error("User not found");
+    if (payload.name)
+        user.name = payload.name;
+    if (payload.email)
+        user.email = payload.email;
+    // CREATOR ONLY
+    if (user.role === "traveler") {
+        user.bio = payload.bio || user.bio;
+        user.social = {
+            facebook: payload.facebook || user.social?.facebook,
+            instagram: payload.instagram || user.social?.instagram,
+            twitter: payload.twitter || user.social?.twitter,
+            youtube: payload.youtube || user.social?.youtube,
+        };
+    }
+    if (file) {
+        user.image = file.path;
+    }
+    await user.save();
+    return user;
+};
+const changePassword = async (userId, oldPassword, newPassword) => {
+    const user = await User_model_1.User.findById(userId);
+    if (!user)
+        throw new Error("User not found");
+    const isMatch = await bcrypt_1.default.compare(oldPassword, user.password);
+    if (!isMatch) {
+        throw new Error("Old password incorrect ❌");
     }
     user.password = await bcrypt_1.default.hash(newPassword, 10);
-    // ✅ clean delete
-    delete user.otp;
-    delete user.otpExpires;
     await user.save();
-    return true;
 };
 exports.UserService = {
     registerUser,
-    verifyOTP,
     loginUser,
     forgotPassword,
+    verifyOTP,
     resetPassword,
+    updateProfile,
+    changePassword
 };
 //# sourceMappingURL=User.service.js.map
