@@ -4,7 +4,7 @@ import fs from "fs";
 
 const uploadPath = "uploads/";
 
-// 🔥 auto create folder
+// auto create folder
 if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath);
 }

@@ -16,7 +16,7 @@ export const authMiddleware = async (
       });
     }
 
-    // 🔥 Bearer token split
+    // Bearer token split
     const token = authHeader.startsWith("Bearer ")
       ? authHeader.split(" ")[1]
       : authHeader;
@@ -36,7 +36,7 @@ export const authMiddleware = async (
 
     next();
   } catch (error) {
-    //console.log("AUTH ERROR:", error); // 🔍 debug
+    //console.log("AUTH ERROR:", error); //  debug
 
     return res.status(401).json({
       message: "Invalid token",

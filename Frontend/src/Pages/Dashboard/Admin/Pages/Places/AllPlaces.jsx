@@ -7,7 +7,7 @@ const AllPlaces = () => {
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔥 TOAST
+  // TOAST
   const [toast, setToast] = useState({
     show: false,
     message: "",
@@ -22,7 +22,7 @@ const AllPlaces = () => {
     }, 3000);
   };
 
-  // 🔥 FETCH
+  // FETCH
   const fetchPlaces = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -40,7 +40,7 @@ const AllPlaces = () => {
       }
     } catch (err) {
       console.log(err);
-      showToast("Failed to load places ❌", "error");
+      showToast("Failed to load places ", "error");
     } finally {
       setLoading(false);
     }
@@ -50,7 +50,7 @@ const AllPlaces = () => {
     fetchPlaces();
   }, []);
 
-  // 🔥 APPROVE
+  // APPROVE
   const handleApprove = async (id) => {
     try {
       const token = localStorage.getItem("token");
@@ -66,18 +66,18 @@ const AllPlaces = () => {
 
       if (!res.ok) return showToast(data.message, "error");
 
-      // 🔥 UPDATE UI
+      // UPDATE UI
       setPlaces((prev) =>
         prev.map((p) =>
           p._id === id ? { ...p, isActive: true } : p
         )
       );
 
-      showToast("Place approved ✅");
+      showToast("Place approved ");
 
     } catch (err) {
       console.log(err);
-      showToast("Error ❌", "error");
+      showToast("Error ", "error");
     }
   };
 
@@ -88,7 +88,7 @@ const AllPlaces = () => {
   return (
     <div className="p-6">
 
-      {/* 🔥 TOAST */}
+      {/* TOAST */}
       {toast.show && (
         <div className="fixed top-5 right-5 z-50 w-80 animate-slide">
           <div

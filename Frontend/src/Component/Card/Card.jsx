@@ -43,7 +43,7 @@ const Card = ({ place }) => {
         }`}
       ></div>
 
-      {/* 🔥 CONTENT */}
+      {/*  CONTENT */}
       <div className="absolute bottom-0 p-4 text-white w-full">
 
         <NavLink to={`/tripsnap/place/${place._id}`} className="text-lg font-semibold leading-tight">
