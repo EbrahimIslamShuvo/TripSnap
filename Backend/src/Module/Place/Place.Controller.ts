@@ -2,12 +2,12 @@ import { Request, Response } from "express";
 import { PlaceService } from "./Place.service";
 import { Place } from "./Place.model";
 import mongoose from "mongoose";
+import { ActivityService } from "../Activity/Activity.service";
 
 const createPlace = async (req: any, res: Response) => {
     try {
         const files = req.files as any;
 
-        // DEFINE FIRST
         const thumbnailCard = files?.thumbnailCard?.[0]?.path;
         const thumbnailDetails = files?.thumbnailDetails?.[0]?.path;
 
@@ -26,12 +26,24 @@ const createPlace = async (req: any, res: Response) => {
             thumbnailCard,
             thumbnailDetails,
             images,
-            createdBy: new mongoose.Types.ObjectId(req.user.id), // ✅ FIXED
+            createdBy: new mongoose.Types.ObjectId(req.user.id),
             isActive: false,
         };
 
+        // 🔥 CREATE PLACE
         const result = await Place.create(placeData);
 
+        // =========================
+        // 🔥 ADD ACTIVITY HERE
+        // =========================
+        await ActivityService.createActivity({
+            user: req.user.id,
+            type: "PLACE",
+            message: `${req.user.name} added a place`,
+            place: result._id, 
+        });
+
+        // 🔥 RESPONSE
         res.json({
             success: true,
             message: "Place created ✅",

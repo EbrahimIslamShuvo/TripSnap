@@ -41,4 +41,6 @@ router.post(
   UserController.changePassword
 );
 
+router.get("/all", authMiddleware, UserController.getAllUsers);
+
 export const UserRoutes = router;

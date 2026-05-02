@@ -34,6 +34,7 @@ import SavedPlace from './Pages/Dashboard/User/Pages/SavedPlace/SavedPlace';
 import SavedBlog from './Pages/Dashboard/User/Pages/SavedBlog/SavedBlog';
 import Subscription from './Pages/Dashboard/User/Pages/Subscription/Subscription';
 import SinglePlace from './Pages/Website/Place/SinglePlace';
+import SingleBlog from './Pages/Website/Blog/SingleBlog';
 
 const router = createBrowserRouter([
   {
@@ -59,6 +60,7 @@ const router = createBrowserRouter([
       { path: "/tripsnap/place", element: <Place /> },
       { path: "/tripsnap/place/:id", element: <SinglePlace /> },
       { path: "/tripsnap/blog", element: <Blog /> },
+      { path: "/tripsnap/blog/:id", element: <SingleBlog /> },
       { path: "/tripsnap/contact", element: <Contact /> },
       { path: "/tripsnap/about", element: <About /> },
     ],

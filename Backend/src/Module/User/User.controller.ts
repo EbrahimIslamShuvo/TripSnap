@@ -145,6 +145,33 @@ const changePassword = async (req: any, res: Response) => {
   }
 };
 
+const getAllUsers = async (req: any, res: Response) => {
+  try {
+    // ADMIN CHECK
+    if (req.user.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized ❌",
+      });
+    }
+
+    const users = await UserService.getAllUsers();
+
+    res.json({
+      success: true,
+      data: users,
+    });
+
+  } catch (err: any) {
+    console.log("GET USERS ERROR:", err);
+
+    res.status(500).json({
+      success: false,
+      message: err.message || "Server error",
+    });
+  }
+};
+
 export const UserController = {
   register,
   login,
@@ -152,5 +179,6 @@ export const UserController = {
   verifyOTP,
   resetPassword,
   updateProfile,
-  changePassword
+  changePassword,
+  getAllUsers
 };

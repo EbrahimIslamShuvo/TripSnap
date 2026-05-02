@@ -185,6 +185,11 @@ const changePassword = async (
   await user.save();
 };
 
+const getAllUsers = async () => {
+  return await User.find().select("-password"); // password hide
+};
+
+
 export const UserService = {
   registerUser,
   loginUser,
@@ -192,5 +197,6 @@ export const UserService = {
   verifyOTP,
   resetPassword,
   updateProfile,
-  changePassword
+  changePassword,
+  getAllUsers
 };
