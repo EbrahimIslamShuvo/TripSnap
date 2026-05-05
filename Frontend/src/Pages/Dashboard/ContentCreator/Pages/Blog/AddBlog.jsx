@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 const API = "http://localhost:3000/api/blogs";
+const BASE_URL = "http://localhost:3000";
 
 const AddBlog = () => {
   const [title, setTitle] = useState("");
@@ -17,6 +18,8 @@ const AddBlog = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [resetKey, setResetKey] = useState(0);
   const [error, setError] = useState("");
+
+
 
   useEffect(() => {
     const fetchPlaces = async () => {
@@ -203,17 +206,43 @@ const AddBlog = () => {
         </div>
 
         {showDropdown && (
-          <div className="border mt-2 p-2 max-h-40 overflow-y-auto">
-            {places.map((p) => (
-              <label key={p._id} className="flex gap-2">
-                <input
-                  type="checkbox"
-                  checked={selectedPlaces.includes(p._id)}
-                  onChange={() => togglePlace(p._id)}
-                />
-                {p.title}
-              </label>
-            ))}
+          <div className="border mt-2 p-2 max-h-60 overflow-y-auto space-y-2">
+            {places
+              .filter((p) => p.isActive)
+              .map((p) => (
+                <label
+                  key={p._id}
+                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 cursor-pointer"
+                >
+                  {/* IMAGE */}
+                  {console.log(p.thumbnailCard)}
+                  <img
+                    src={
+                      p.thumbnailCard
+                        ? `${BASE_URL}/${p.thumbnailCard.replace(/\\/g, "/").replace(/^\/?/, "")}`
+                        : "https://via.placeholder.com/60"
+                    }
+                    alt={p.title}
+                    className="w-14 h-14 object-cover rounded-md"
+                  />
+
+                  {/* TEXT */}
+                  <div className="flex-1">
+                    <p className="font-semibold">{p.title}</p>
+                    <p className="text-sm text-gray-500">
+                      {p.location || "Unknown location"},{p.country || "Unknown location"}
+                    </p>
+                  </div>
+
+                  {/* CHECKBOX */}
+                  <input
+                    type="checkbox"
+                    checked={selectedPlaces.includes(p._id)}
+                    onChange={() => togglePlace(p._id)}
+                    className="w-4 h-4"
+                  />
+                </label>
+              ))}
           </div>
         )}
       </div>

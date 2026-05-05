@@ -87,38 +87,53 @@ const Login = () => {
 
       // 🔐 LOGIN (NO OTP)
       if (view === "login") {
-        if (!form.email) return showToast("Email is required");
-        if (!emailRegex.test(form.email)) return showToast("Invalid email");
-        if (!form.password) return showToast("Password required");
+        console.log("LOGIN CLICKED");
 
-        const res = await fetch(`${API}/login`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            email: form.email,
-            password: form.password
-          })
-        });
+        try {
+          const res = await fetch(`${API}/login`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: form.email,
+              password: form.password,
+            }),
+          });
 
-        const data = await res.json();
+          console.log("RAW RESPONSE:", res);
 
-        // ❌ backend error
-        if (!data.success) {
-          return showToast(data.message);
+          const data = await res.json();
+
+          console.log("LOGIN RESPONSE:", data);
+
+          if (!res.ok || !data.success) {
+            return showToast(data.message || "Login failed ❌");
+          }
+
+          showToast("Login success ✅");
+
+          localStorage.setItem("token", data.token);
+
+          const userData = data.data || data.user;
+
+          if (userData) {
+            localStorage.setItem(
+              "user",
+              JSON.stringify({
+                _id: userData._id || userData.id,
+                name: userData.name,
+                email: userData.email,
+              })
+            );
+          }
+
+          window.location.href = "/tripsnap";
+
+        } catch (err) {
+          console.log("LOGIN ERROR:", err);
+          showToast("Server error ❌");
         }
-
-        // ✅ SUCCESS
-        showToast("Login success ✅");
-
-        // 🔥 TOKEN SAVE
-        localStorage.setItem("token", data.token);
-
-        // 🔥 REDIRECT
-        window.location.href = "/tripsnap";
-
-        return;
       }
 
       // 📝 REGISTER
@@ -180,7 +195,7 @@ const Login = () => {
 
       showToast("Server error ❌");
       console.log(err);
-      
+
     }
   };
 
@@ -287,7 +302,10 @@ const Login = () => {
           {!showOTP && view !== "reset" && (
             <button
               type="button"
-              onClick={handleSubmit}
+              onClick={() => {
+                console.log("CLICKED");
+                handleSubmit();
+              }}
               className="w-full bg-white text-black py-2 mt-4 rounded-lg"
             >
               {view === "forgot" ? "Send OTP" : "Continue"}

@@ -39,7 +39,7 @@ const Navbar = () => {
 
                 const data = await res.json();
 
-                console.log("USER API RESPONSE:", data); // 🔍 debug
+                //console.log("USER API RESPONSE:", data); // 🔍 debug
 
                 if (data.success) {
                     setUser(data.user);

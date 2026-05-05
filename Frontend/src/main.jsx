@@ -26,15 +26,17 @@ import Message from './Pages/Dashboard/Admin/Pages/Message/Message';
 import AllPlaces from './Pages/Dashboard/Admin/Pages/Places/AllPlaces';
 import Sales from './Pages/Dashboard/Admin/Pages/Sales/Sales';
 import UsersList from './Pages/Dashboard/Admin/Pages/Users/UsersList';
-import AddBlog from './Pages/Dashboard/ContentCreator/Pages/AddBlog/AddBlog';
 import AddPlace from './Pages/Dashboard/ContentCreator/Pages/AddPlace/AddPlace';
-import MyBlog from './Pages/Dashboard/ContentCreator/Pages/MyBlog/MyBlog';
 import MyReview from './Pages/Dashboard/User/Pages/MyReview/MyReview';
 import SavedPlace from './Pages/Dashboard/User/Pages/SavedPlace/SavedPlace';
 import SavedBlog from './Pages/Dashboard/User/Pages/SavedBlog/SavedBlog';
 import Subscription from './Pages/Dashboard/User/Pages/Subscription/Subscription';
 import SinglePlace from './Pages/Website/Place/SinglePlace';
 import SingleBlog from './Pages/Website/Blog/SingleBlog';
+import EditBlog from './Pages/Dashboard/ContentCreator/Pages/Blog/EditBlog';
+import AddBlog from './Pages/Dashboard/ContentCreator/Pages/Blog/AddBlog';
+import MyBlog from './Pages/Dashboard/ContentCreator/Pages/Blog/MyBlog';
+import SingleAuthor from './Pages/Website/Author/SingleAuthor';
 
 const router = createBrowserRouter([
   {
@@ -63,6 +65,7 @@ const router = createBrowserRouter([
       { path: "/tripsnap/blog/:id", element: <SingleBlog /> },
       { path: "/tripsnap/contact", element: <Contact /> },
       { path: "/tripsnap/about", element: <About /> },
+      { path: "/tripsnap/users/:id", element: <SingleAuthor /> },
     ],
   },
   {
@@ -121,6 +124,10 @@ const router = createBrowserRouter([
           {
             path:"myblogs",
             element:<MyBlog />
+          },
+          {
+            path:"edit-blog/:id",
+            element:<EditBlog />
           },
         ]
       },
