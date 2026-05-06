@@ -183,9 +183,8 @@ const AddPlace = () => {
       {/* TOAST */}
       {toast.show && (
         <div className="fixed top-5 right-5 z-50 w-80">
-          <div className={`px-4 py-3 rounded-lg text-white ${
-            toast.type === "success" ? "bg-[#32AEBB]" : "bg-[#F48C3C]"
-          }`}>
+          <div className={`px-4 py-3 rounded-lg text-white ${toast.type === "success" ? "bg-[#32AEBB]" : "bg-[#F48C3C]"
+            }`}>
             {toast.message}
           </div>
         </div>
@@ -250,6 +249,47 @@ const AddPlace = () => {
 
           <FileInput label="Card Thumbnail" preview={preview.thumbnailCard} onChange={(e) => handleFile(e, "thumbnailCard")} />
           <FileInput label="Details Thumbnail" preview={preview.thumbnailDetails} onChange={(e) => handleFile(e, "thumbnailDetails")} />
+          {/* MULTIPLE IMAGES */}
+          <div>
+            <p className="mb-2 text-sm">Gallery Images</p>
+
+            <label className="cursor-pointer block border-2 border-dashed p-4 rounded-lg text-center">
+              <span className="text-gray-500">
+                Upload Multiple Images
+              </span>
+
+              <input
+                type="file"
+                multiple
+                hidden
+                onChange={(e) => handleMultipleImages(e.target.files)}
+              />
+            </label>
+
+            {/* PREVIEW */}
+            <div className="grid grid-cols-3 gap-3 mt-4">
+
+              {preview.images.map((img, i) => (
+                <div key={i} className="relative">
+
+                  <img
+                    src={img}
+                    className="h-28 w-full object-cover rounded-lg"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => removeImage(i)}
+                    className="absolute top-1 right-1 bg-red-500 text-white w-6 h-6 rounded-full text-sm"
+                  >
+                    ✕
+                  </button>
+
+                </div>
+              ))}
+
+            </div>
+          </div>
 
           <button onClick={handleSubmit} className="w-full bg-[#32AEBB] text-white py-2 rounded-lg">
             Add Place
