@@ -115,7 +115,7 @@ const getSinglePlace = async (req: any, res: Response) => {
     }
 };
 
-// 🔥 GET ALL PLACES (ADMIN)
+// GET ALL PLACES 
 const getAllPlaces = async (req: any, res: Response) => {
     try {
         const places = await PlaceService.getAllPlaces();

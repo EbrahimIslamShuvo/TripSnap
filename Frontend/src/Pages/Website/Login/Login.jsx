@@ -120,11 +120,7 @@ const Login = () => {
           if (userData) {
             localStorage.setItem(
               "user",
-              JSON.stringify({
-                _id: userData._id || userData.id,
-                name: userData.name,
-                email: userData.email,
-              })
+              JSON.stringify(userData)
             );
           }
 

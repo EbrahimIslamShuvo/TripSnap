@@ -20,12 +20,10 @@ const getSinglePlace = async (id: string) => {
   return await Place.findById(id);
 };
 
-// 🔥 GET ALL (ADMIN)
+// 🔥 GET ALL 
 const getAllPlaces = async () => {
   return await Place.find().sort({ createdAt: -1 });
 };
-
-
 
 export const PlaceService = {
   createPlace,

@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { BlogService } from "./Blog.service";
 import { ActivityService } from "../Activity/Activity.service";
+import { Types } from "mongoose";
+import { Blog } from "./Blog.model";
 
 const createBlog = async (req: any, res: Response) => {
     try {
@@ -34,7 +36,7 @@ const createBlog = async (req: any, res: Response) => {
             places = JSON.parse(req.body.places);
         }
 
-        // 🔥 CREATE BLOG
+        //  CREATE BLOG
         const result = await BlogService.createBlog({
             title: req.body.title,
             banner,
@@ -125,10 +127,196 @@ export const toggleBlogStatusController = async (req: any, res: Response) => {
     }
 };
 
+interface Params {
+    placeId: string;
+}
+
+// 🔹 GET /by-place/:placeId (SinglePlace page)
+const getBlogsByPlace = async (req: Request, res: Response) => {
+    try {
+        const { placeId } = req.params;
+
+        // 🔥 TYPE SAFETY CHECK
+        if (!placeId || typeof placeId !== "string") {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid placeId",
+            });
+        }
+
+        const result = await BlogService.getBlogsByPlaceFromDB(placeId);
+
+        res.json({
+            success: true,
+            data: result,
+        });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch blogs",
+        });
+    }
+};
+
+// 🔹 POST /by-places (SingleBlog page)
+const getBlogsByPlaces = async (req: any, res: Response) => {
+    try {
+        const { placeIds } = req.body;
+
+        if (!placeIds || placeIds.length === 0) {
+            return res.json({ success: true, data: [] });
+        }
+
+        const result = await BlogService.getBlogsByPlacesFromDB(placeIds);
+
+        res.json({
+            success: true,
+            data: result,
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch related blogs",
+        });
+    }
+};
+
+const updateBlog = async (req: any, res: Response) => {
+    try {
+        const blog = await Blog.findById(req.params.id);
+
+        if (!blog) {
+            return res.status(404).json({
+                success: false,
+                message: "Blog not found",
+            });
+        }
+
+        const files = req.files as any;
+
+        // =========================
+        // 🔥 BANNER (KEEP OLD)
+        // =========================
+        const banner = files?.banner?.[0]?.path || blog.banner;
+
+        // =========================
+        // 🔥 GALLERY (KEEP OLD)
+        // =========================
+        let gallery = blog.gallery;
+
+        if (files?.gallery) {
+            gallery = files.gallery.map((f: any) => f.path);
+        }
+
+        // =========================
+        // 🔥 SECTIONS
+        // =========================
+        let sections = JSON.parse(req.body.sections || "[]");
+
+        const sectionImages = files?.sectionImages || [];
+
+        let imgIndex = 0;
+
+        sections = sections.map((sec: any, index: number) => {
+            if (sec.type === "image") {
+                // ✅ NEW IMAGE
+                if (sectionImages[imgIndex]) {
+                    sec.image = sectionImages[imgIndex].path;
+                    imgIndex++;
+                } else {
+                    // ✅ KEEP OLD IMAGE
+                    sec.image = blog.sections[index]?.image || "";
+                }
+            }
+
+            // 🔥 TABLE SAFE
+            if (sec.type === "table" && !sec.table) {
+                sec.table = { title: "", columns: [], rows: [] };
+            }
+
+            return sec;
+        });
+
+        // =========================
+        // 🔥 PLACES
+        // =========================
+        let places = blog.places;
+
+        if (req.body.places) {
+            places = JSON.parse(req.body.places);
+        }
+
+        // =========================
+        // 🔥 UPDATE
+        // =========================
+        const result = await BlogService.updateBlog(
+            req.params.id,
+            {
+                title: req.body.title,
+                banner,
+                gallery,
+                sections,
+                places,
+            }
+        );
+
+        res.json({
+            success: true,
+            message: "Blog updated successfully ✅",
+            data: result,
+        });
+
+    } catch (err: any) {
+        console.log("UPDATE ERROR:", err);
+
+        res.status(400).json({
+            success: false,
+            message: err.message || "Update failed",
+        });
+    }
+};
+
+ const getBlogsByAuthor = async (req: Request, res: Response) => {
+  try {
+    const rawId = req.params.id;
+
+    // 🔥 SAFE CHECK
+    if (!rawId || Array.isArray(rawId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid ID",
+      });
+    }
+
+    const id: string = rawId;
+
+    // 🔥 SERVICE CALL (INSIDE TRY)
+    const blogs = await BlogService.getBlogsByAuthorService(id);
+
+    return res.json({
+      success: true,
+      data: blogs,
+    });
+
+  } catch (err: any) {
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
 export const blogController = {
     createBlog,
     getAllBlogs,
     getSingleBlog,
     getMyBlogs,
-    toggleBlogStatusController
+    toggleBlogStatusController,
+    getBlogsByPlaces,
+    getBlogsByPlace,
+    updateBlog,
+    getBlogsByAuthor
 };

@@ -21,7 +21,7 @@ const UserCardPlace = ({ place }) => {
       {/* OVERLAY */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
 
-      {/* GLOW BORDER (SUBTLE) */}
+      {/* GLOW BORDER (SUBTLE)ss */}
       <div
         className={`absolute inset-0 rounded-xl pointer-events-none border-2 transition
         ${

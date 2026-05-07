@@ -14,11 +14,11 @@ const uploadFields = upload.fields([
 router.post(
   "/create",
   authMiddleware,
-  uploadFields, // ✅ THIS FIXES ERROR
+  uploadFields,
   placeController.createPlace
 );
 
-router.get("/all", authMiddleware, placeController.getAllPlaces);
+router.get("/all", placeController.getAllPlaces);
 router.patch("/approve/:id", authMiddleware, placeController.approvePlace);
 
 // GET travelers PLACES

@@ -188,14 +188,91 @@ const SingleAuthor = () => {
                 </h2>
 
                 {blogs.length === 0 ? (
-                    <p className="text-gray-500">No blogs yet</p>
+
+                    <p className="text-gray-500">
+                        No blogs yet
+                    </p>
+
                 ) : (
+
                     <div className="grid md:grid-cols-3 gap-5">
-                        {blogs.map((b) => (
-                            <BlogCard key={b._id} blog={b} />
-                        ))}
+
+                        {(() => {
+
+                            const currentUser =
+                                JSON.parse(
+                                    localStorage.getItem("user") ||
+                                    "null"
+                                );
+
+                            let limitedBlogs =
+                                blogs;
+
+                            // FREE + EXPIRED
+                            if (
+                                currentUser?.subscription
+                                    ?.status === "free" ||
+                                currentUser?.subscription
+                                    ?.status === "expired"
+                            ) {
+
+                                limitedBlogs =
+                                    blogs.slice(0, 1);
+                            }
+
+                            return limitedBlogs.map(
+                                (b) => (
+
+                                    <BlogCard
+                                        key={b._id}
+                                        blog={b}
+                                    />
+
+                                )
+                            );
+
+                        })()}
+
                     </div>
+
                 )}
+
+                {/* 🔥 SUBSCRIPTION MESSAGE */}
+                {(JSON.parse(
+                    localStorage.getItem("user") ||
+                    "null"
+                )?.subscription?.status ===
+                    "free" ||
+
+                    JSON.parse(
+                        localStorage.getItem("user") ||
+                        "null"
+                    )?.subscription?.status ===
+                    "expired") && (
+
+                        <div className="mt-8 bg-gradient-to-r from-[#000080] to-[#32AEBB] rounded-2xl p-6 text-white text-center">
+
+                            <h3 className="text-2xl font-bold">
+                                Unlock All Blogs ✨
+                            </h3>
+
+                            <p className="mt-2 text-white/80">
+                                Upgrade your subscription to explore all travel stories and premium content.
+                            </p>
+
+                            <button
+                                onClick={() =>
+                                    window.location.href =
+                                    "/dashboard/user/subscription"
+                                }
+                                className="mt-5 px-6 py-3 bg-white text-[#000080] rounded-full font-semibold hover:scale-105 transition-all"
+                            >
+                                Upgrade Now
+                            </button>
+
+                        </div>
+
+                    )}
 
             </div>
         </div>

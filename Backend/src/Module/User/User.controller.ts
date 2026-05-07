@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { UserService } from "./User.service";
+import mongoose from "mongoose";
 
 // REGISTER
 const register = async (req: any, res: Response) => {
@@ -172,6 +173,98 @@ const getAllUsers = async (req: any, res: Response) => {
   }
 };
 
+export const getSingleUser = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+
+    // 🔥 ID VALIDATION
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    // 🔥 ObjectId CHECK (VERY IMPORTANT)
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid User ID",
+      });
+    }
+
+    const user = await UserService.getSingleUser(id);
+
+    res.json({
+      success: true,
+      data: user,
+    });
+
+  } catch (err: any) {
+    res.status(404).json({
+      success: false,
+      message: err.message || "User not found",
+    });
+  }
+};
+
+const savePlace = async (req: any,res: Response) => {
+  try {
+
+    const userId = req.user.id;
+    const placeId = req.params.id;
+
+    const result = await UserService.savePlace(
+      userId,
+      placeId
+    );
+
+    res.json({
+      success: true,
+      ...result,
+    });
+
+  } catch (err: any) {
+
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+
+  }
+};
+
+const saveBlog = async (
+  req: any,
+  res: Response
+) => {
+
+  try {
+
+    const userId = req.user.id;
+    const blogId = req.params.id;
+
+    const result =
+      await UserService.saveBlog(
+        userId,
+        blogId
+      );
+
+    res.json({
+      success: true,
+      ...result,
+    });
+
+  } catch (err: any) {
+
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+
+  }
+};
+
 export const UserController = {
   register,
   login,
@@ -180,5 +273,8 @@ export const UserController = {
   resetPassword,
   updateProfile,
   changePassword,
-  getAllUsers
+  getAllUsers,
+  getSingleUser,
+  savePlace,
+  saveBlog
 };

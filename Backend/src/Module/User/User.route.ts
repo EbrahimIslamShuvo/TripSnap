@@ -42,5 +42,13 @@ router.post(
 );
 
 router.get("/all", authMiddleware, UserController.getAllUsers);
+router.post("/save-place/:id",authMiddleware,UserController.savePlace);
+router.post(
+  "/save-blog/:id",
+  authMiddleware,
+  UserController.saveBlog
+);
+
+router.get("/:id", UserController.getSingleUser);
 
 export const UserRoutes = router;

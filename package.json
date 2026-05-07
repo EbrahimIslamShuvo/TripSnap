@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "sslcommerz-lts": "^1.2.0",
+    "uuid": "^14.0.0"
+  }
+}
