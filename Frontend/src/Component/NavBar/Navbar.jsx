@@ -18,6 +18,7 @@ const Navbar = () => {
         { name: "Home", path: "/tripsnap" },
         { name: "Place", path: "/tripsnap/place" },
         { name: "Blog", path: "/tripsnap/blog" },
+        { name: "Tour", path: "/tripsnap/tour" },
         { name: "Contact", path: "/tripsnap/contact" },
         { name: "About", path: "/tripsnap/about" },
     ];

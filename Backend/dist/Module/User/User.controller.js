@@ -1,7 +1,11 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserController = void 0;
+exports.UserController = exports.getSingleUser = void 0;
 const User_service_1 = require("./User.service");
+const mongoose_1 = __importDefault(require("mongoose"));
 // REGISTER
 const register = async (req, res) => {
     try {
@@ -125,6 +129,117 @@ const changePassword = async (req, res) => {
         });
     }
 };
+const getAllUsers = async (req, res) => {
+    try {
+        // ADMIN CHECK
+        if (req.user.role !== "admin") {
+            return res.status(403).json({
+                success: false,
+                message: "Unauthorized ❌",
+            });
+        }
+        const users = await User_service_1.UserService.getAllUsers();
+        res.json({
+            success: true,
+            data: users,
+        });
+    }
+    catch (err) {
+        console.log("GET USERS ERROR:", err);
+        res.status(500).json({
+            success: false,
+            message: err.message || "Server error",
+        });
+    }
+};
+const getSingleUser = async (req, res) => {
+    try {
+        const id = req.params.id;
+        // 🔥 ID VALIDATION
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: "User ID is required",
+            });
+        }
+        // 🔥 ObjectId CHECK (VERY IMPORTANT)
+        if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid User ID",
+            });
+        }
+        const user = await User_service_1.UserService.getSingleUser(id);
+        res.json({
+            success: true,
+            data: user,
+        });
+    }
+    catch (err) {
+        res.status(404).json({
+            success: false,
+            message: err.message || "User not found",
+        });
+    }
+};
+exports.getSingleUser = getSingleUser;
+const savePlace = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const placeId = req.params.id;
+        const result = await User_service_1.UserService.savePlace(userId, placeId);
+        res.json({
+            success: true,
+            ...result,
+        });
+    }
+    catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message,
+        });
+    }
+};
+const saveBlog = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const blogId = req.params.id;
+        const result = await User_service_1.UserService.saveBlog(userId, blogId);
+        res.json({
+            success: true,
+            ...result,
+        });
+    }
+    catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message,
+        });
+    }
+};
+const createTravelerOrAgent = async (req, res) => {
+    try {
+        // 🔥 ADMIN CHECK
+        if (req.user.role !== "admin") {
+            return res.status(403).json({
+                success: false,
+                message: "Unauthorized",
+            });
+        }
+        const result = await User_service_1.UserService.createTravelerOrAgent(req.body);
+        res.json({
+            success: true,
+            message: "Account created & credentials sent to email",
+            data: result,
+        });
+    }
+    catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message,
+        });
+    }
+};
 exports.UserController = {
     register,
     login,
@@ -132,6 +247,11 @@ exports.UserController = {
     verifyOTP,
     resetPassword,
     updateProfile,
-    changePassword
+    changePassword,
+    getAllUsers,
+    getSingleUser: exports.getSingleUser,
+    savePlace,
+    saveBlog,
+    createTravelerOrAgent
 };
 //# sourceMappingURL=User.controller.js.map

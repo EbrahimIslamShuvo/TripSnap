@@ -49,6 +49,13 @@ router.post(
   UserController.saveBlog
 );
 
+router.post(
+  "/create-team-member",
+  authMiddleware,
+  upload.single("image"),
+  UserController.createTeamMember
+);
+
 router.get("/:id", UserController.getSingleUser);
 
 export const UserRoutes = router;

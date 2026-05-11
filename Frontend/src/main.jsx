@@ -37,6 +37,15 @@ import EditBlog from './Pages/Dashboard/ContentCreator/Pages/Blog/EditBlog';
 import AddBlog from './Pages/Dashboard/ContentCreator/Pages/Blog/AddBlog';
 import MyBlog from './Pages/Dashboard/ContentCreator/Pages/Blog/MyBlog';
 import SingleAuthor from './Pages/Website/Author/SingleAuthor';
+import Teammanagemment from './Pages/Dashboard/Admin/Pages/TeamManagement/Teammanagemment';
+import Agent from './Pages/Dashboard/Agent/Agent';
+import LaunchTour from './Pages/Dashboard/Agent/Pages/LaunchTour/LaunchTour';
+import Tour from './Pages/Dashboard/Agent/Pages/Tour/Tour';
+import Booking from './Pages/Dashboard/Agent/Pages/Booking/Booking';
+import Update from './Pages/Dashboard/Agent/Pages/Update/Update';
+import TourPage from './Pages/Website/Tour/TourPage';
+import SingleTour from './Pages/Website/Tour/SingleTour';
+import MyTour from './Pages/Dashboard/User/Pages/MyTour/MyTour';
 
 const router = createBrowserRouter([
   {
@@ -66,13 +75,15 @@ const router = createBrowserRouter([
       { path: "/tripsnap/contact", element: <Contact /> },
       { path: "/tripsnap/about", element: <About /> },
       { path: "/tripsnap/users/:id", element: <SingleAuthor /> },
+      { path: "/tripsnap/tour", element: <TourPage /> },
+      { path: "/tripsnap/tour/:id", element: <SingleTour /> },
     ],
   },
   {
     path: "/dashboard",
     element: (
 
-        <DashboardLayout/>
+      <DashboardLayout />
     ),
     children: [
       {
@@ -82,89 +93,127 @@ const router = createBrowserRouter([
       {
         path: "user",
         element: <User />,
-        children:[
+        children: [
           {
-            index:true,
-            element:<Profile />
+            index: true,
+            element: <Profile />
           },
           {
-            path:"myreview",
-            element:<MyReview />
+            path: "myreview",
+            element: <MyReview />
           },
           {
-            path:"savedplace",
-            element:<SavedPlace />
+            path: "savedplace",
+            element: <SavedPlace />
           },
           {
-            path:"savedblog",
-            element:<SavedBlog />
+            path: "savedblog",
+            element: <SavedBlog />
           },
           {
-            path:"subscription",
-            element:<Subscription />
+            path: "my-tour",
+            element: <MyTour />
+          },
+          {
+            path: "subscription",
+            element: <Subscription />
           },
         ]
       },
       {
         path: "creator",
         element: <ContentCreator />,
-        children:[
+        children: [
           {
-            index:true,
-            element:<Profile />
+            index: true,
+            element: <Profile />
           },
           {
-            path:"addblog",
-            element:<AddBlog />
+            path: "addblog",
+            element: <AddBlog />
           },
           {
-            path:"addplace",
-            element:<AddPlace />
+            path: "addplace",
+            element: <AddPlace />
           },
           {
-            path:"myblogs",
-            element:<MyBlog />
+            path: "myblogs",
+            element: <MyBlog />
           },
           {
-            path:"edit-blog/:id",
-            element:<EditBlog />
+            path: "edit-blog/:id",
+            element: <EditBlog />
           },
         ]
       },
       {
         path: "admin",
         element: <Admin />,
-        children:[
+        children: [
           {
-            index:true,
-            element:<Profile />
+            index: true,
+            element: <Profile />
           },
           {
-            path:"blog",
-            element:<AllBlogs />
+            path: "blog",
+            element: <AllBlogs />
           },
           {
-            path:"cratorActivities",
-            element:<CreatorActivites />
+            path: "cratorActivities",
+            element: <CreatorActivites />
           },
           {
-            path:"message",
-            element:<Message />
+            path: "message",
+            element: <Message />
           },
           {
-            path:"place",
-            element:<AllPlaces />
+            path: "place",
+            element: <AllPlaces />
           },
           {
-            path:"sales",
-            element:<Sales />
+            path: "sales",
+            element: <Sales />
           },
           {
-            path:"user",
-            element:<UsersList />
+            path: "team-management",
+            element: <Teammanagemment />
+          },
+          {
+            path: "user",
+            element: <UsersList />
           },
         ]
       },
+      {
+        path: "agent",
+        element: <Agent />,
+        children: [
+          {
+            index: true,
+            element: <Profile />
+          },
+
+          {
+            path: "add-tour",
+            element: <LaunchTour />
+          },
+
+          {
+            path: "our-tours",
+            element: <Tour />
+          },
+
+          {
+            path: "bookings",
+            element: <Booking />
+          },
+
+          {
+            path: "send-update",
+            element: <Update />
+          },
+        ]
+      }
     ],
   }
 

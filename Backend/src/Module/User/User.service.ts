@@ -8,6 +8,7 @@ const generateOTP = () => {
   return Math.floor(1000 + Math.random() * 9000).toString();
 };
 
+
 // ================= REGISTER =================
 const registerUser = async (payload: any) => {
   const exist = await User.findOne({ email: payload.email });
@@ -359,6 +360,115 @@ const saveBlog = async (
   };
 };
 
+
+const generatePassword = () => {
+  return Math.random()
+    .toString(36)
+    .slice(-8);
+};
+
+const createTeamMember = async (
+  payload: any,
+  file?: any
+) => {
+
+  // 🔥 EMAIL EXISTS CHECK
+  const existingUser =
+    await User.findOne({
+      email: payload.email,
+    });
+
+  if (existingUser) {
+    throw new Error(
+      "Account already exists with this email"
+    );
+  }
+
+  // 🔥 RANDOM PASSWORD
+  const plainPassword =
+    generatePassword();
+
+  // 🔥 HASH PASSWORD
+  const hashedPassword =
+    await bcrypt.hash(
+      plainPassword,
+      10
+    );
+
+  // 🔥 CREATE USER
+  const user =
+    await User.create({
+      name: payload.name,
+      email: payload.email,
+      role: payload.role,
+      image: file?.path,
+      password: hashedPassword,
+
+      isVerified: true,
+    });
+
+  // 🔥 SEND MAIL
+  await sendEmail(
+    payload.email,
+    `
+  <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 30px;">
+    <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+      
+      <div style="background: linear-gradient(135deg, #2563eb, #7c3aed); padding: 30px; text-align: center; color: white;">
+        <h1 style="margin: 0;">Welcome to TripSnap ✈️</h1>
+        <p style="margin-top: 10px; font-size: 15px;">
+          Your account has been created successfully
+        </p>
+      </div>
+
+      <div style="padding: 30px; color: #333;">
+        <p style="font-size: 16px;">
+          Hello,
+        </p>
+
+        <p style="font-size: 15px; line-height: 1.7;">
+          We are excited to have you onboard. Below are your account details:
+        </p>
+
+        <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; margin: 20px 0;">
+          <p style="margin: 8px 0;"><strong>Role:</strong> ${payload.role}</p>
+          <p style="margin: 8px 0;"><strong>Email:</strong> ${payload.email}</p>
+          <p style="margin: 8px 0;"><strong>Password:</strong> ${plainPassword}</p>
+        </div>
+
+        <p style="font-size: 14px; color: #dc2626;">
+           For security reasons, please login and change your password immediately.
+        </p>
+
+        <div style="text-align: center; margin-top: 30px;">
+          <a 
+            href="https://yourwebsite.com/login"
+            style="
+              background: #2563eb;
+              color: white;
+              text-decoration: none;
+              padding: 12px 25px;
+              border-radius: 8px;
+              display: inline-block;
+              font-weight: bold;
+            "
+          >
+            Login Now
+          </a>
+        </div>
+      </div>
+
+      <div style="background: #f3f4f6; text-align: center; padding: 20px; font-size: 13px; color: #6b7280;">
+        © ${new Date().getFullYear()} TripSnap. All rights reserved.
+      </div>
+    </div>
+  </div>
+  `
+  );
+
+  return user;
+};
+
 // ================= EXPORT =================
 export const UserService = {
   registerUser,
@@ -372,4 +482,5 @@ export const UserService = {
   getSingleUser,
   savePlace,
   saveBlog,
+  createTeamMember,
 };

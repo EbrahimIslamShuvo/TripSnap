@@ -36,11 +36,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const userSchema = new mongoose_1.Schema({
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    image: { type: String },
-    bio: { type: String },
+    name: {
+        type: String,
+        required: true,
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    password: {
+        type: String,
+        required: true,
+    },
+    image: {
+        type: String,
+    },
+    bio: {
+        type: String,
+    },
     social: {
         facebook: { type: String },
         instagram: { type: String },
@@ -49,22 +63,55 @@ const userSchema = new mongoose_1.Schema({
     },
     role: {
         type: String,
-        enum: ["user", "traveler", "admin"],
+        enum: ["user", "traveler", "agent", "admin"],
         default: "user",
     },
+    // 🔥 SUBSCRIPTION
     subscription: {
         status: {
             type: String,
             enum: ["free", "active", "expired"],
             default: "free",
         },
+        plan: {
+            type: String,
+            enum: ["monthly", "quarterly", "halfYear", "yearly"],
+        },
+        startDate: {
+            type: Date,
+        },
+        endDate: {
+            type: Date,
+        },
     },
+    // 🔥 VERIFY
     isVerified: {
         type: Boolean,
         default: false,
     },
-    otp: { type: String },
-    otpExpires: { type: Date },
-}, { timestamps: true });
+    // 🔥 SAVED PLACES
+    savedPlaces: [
+        {
+            type: mongoose_1.Schema.Types.ObjectId,
+            ref: "Place",
+        },
+    ],
+    // 🔥 SAVED BLOGS
+    savedBlogs: [
+        {
+            type: mongoose_1.Schema.Types.ObjectId,
+            ref: "Blog",
+        },
+    ],
+    // 🔥 OTP
+    otp: {
+        type: String,
+    },
+    otpExpires: {
+        type: Date,
+    },
+}, {
+    timestamps: true,
+});
 exports.User = mongoose_1.default.model("User", userSchema);
 //# sourceMappingURL=User.model.js.map

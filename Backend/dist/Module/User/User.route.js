@@ -28,5 +28,10 @@ router.get("/me", auth_middleware_1.authMiddleware, (req, res) => {
 });
 router.put("/update-profile", auth_middleware_1.authMiddleware, multer_1.upload.single("image"), User_controller_1.UserController.updateProfile);
 router.post("/change-password", auth_middleware_1.authMiddleware, User_controller_1.UserController.changePassword);
+router.get("/all", auth_middleware_1.authMiddleware, User_controller_1.UserController.getAllUsers);
+router.post("/save-place/:id", auth_middleware_1.authMiddleware, User_controller_1.UserController.savePlace);
+router.post("/save-blog/:id", auth_middleware_1.authMiddleware, User_controller_1.UserController.saveBlog);
+router.post("/create-role-user", auth_middleware_1.authMiddleware, User_controller_1.UserController.createTravelerOrAgent);
+router.get("/:id", User_controller_1.UserController.getSingleUser);
 exports.UserRoutes = router;
 //# sourceMappingURL=User.route.js.map

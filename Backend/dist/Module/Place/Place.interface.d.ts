@@ -9,5 +9,7 @@ export interface IPlace {
     images: string[];
     isActive: boolean;
     createdBy: Types.ObjectId;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 //# sourceMappingURL=Place.interface.d.ts.map

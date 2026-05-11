@@ -2,26 +2,27 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PlaceService = void 0;
 const Place_model_1 = require("./Place.model");
-const createPlace = async (payload, user, files) => {
-    if (user.role !== "traveler") {
-        throw new Error("Only creators allowed");
-    }
-    const images = files?.images?.map((img) => img.path) || [];
-    return await Place_model_1.Place.create({
-        ...payload,
-        thumbnailCard: files?.thumbnailCard?.[0]?.path,
-        thumbnailDetails: files?.thumbnailDetails?.[0]?.path,
-        images,
-        createdBy: user.id,
-    });
+const createPlace = async (payload) => {
+    return await Place_model_1.Place.create(payload);
 };
-// admin approve
+const getMyPlaces = async (userId) => {
+    return await Place_model_1.Place.find({ createdBy: userId }).sort({ createdAt: -1 });
+};
 const approvePlace = async (id) => {
-    const place = await Place_model_1.Place.findByIdAndUpdate(id, { isActive: true }, { new: true });
-    return place;
+    return await Place_model_1.Place.findByIdAndUpdate(id, { isActive: true }, { new: true });
+};
+const getSinglePlace = async (id) => {
+    return await Place_model_1.Place.findById(id);
+};
+// 🔥 GET ALL 
+const getAllPlaces = async () => {
+    return await Place_model_1.Place.find().sort({ createdAt: -1 });
 };
 exports.PlaceService = {
     createPlace,
+    getMyPlaces,
     approvePlace,
+    getSinglePlace,
+    getAllPlaces,
 };
 //# sourceMappingURL=Place.service.js.map

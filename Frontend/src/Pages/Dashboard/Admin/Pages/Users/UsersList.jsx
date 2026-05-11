@@ -3,30 +3,46 @@ import React, { useEffect, useState } from "react";
 const API = "http://localhost:3000/api/users";
 
 const UsersList = () => {
+
   const [users, setUsers] = useState([]);
+
   const [tab, setTab] = useState("user");
+
   const [loading, setLoading] = useState(true);
 
-  // 🔥 FETCH USERS
+  // ================= FETCH USERS =================
   const fetchUsers = async () => {
+
     try {
-      const token = localStorage.getItem("token");
 
-      const res = await fetch(`${API}/all`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const token =
+        localStorage.getItem("token");
 
-      const data = await res.json();
+      const res = await fetch(
+        `${API}/all`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data =
+        await res.json();
 
       if (data.success) {
         setUsers(data.data || []);
       }
+
     } catch (err) {
+
       console.log(err);
+
     } finally {
+
       setLoading(false);
+
     }
   };
 
@@ -34,132 +50,244 @@ const UsersList = () => {
     fetchUsers();
   }, []);
 
-  // 🔥 FILTER
-  const filteredUsers = users.filter((u) => u.role === tab);
+  // ================= FILTER =================
+  const filteredUsers =
+    users.filter(
+      (u) => u.role === tab
+    );
 
-  if (loading) return <div className="p-6">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="p-6">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
 
       {/* HEADER */}
-      <h2 className="text-2xl font-semibold mb-6">
-        Users Management
-      </h2>
+      <div className="flex justify-between items-center mb-6">
 
-      {/* 🔥 TOGGLE */}
-      <div className="flex gap-2 mb-6">
+        <div>
+
+          <h2 className="text-2xl font-semibold">
+            Users Management
+          </h2>
+
+          <p className="text-gray-500 text-sm mt-1">
+            Manage users, travelers & agents
+          </p>
+
+        </div>
+
+      </div>
+
+      {/* ================= TABS ================= */}
+      <div className="flex gap-3 mb-6">
+
+        {/* USER */}
         <button
-          onClick={() => setTab("user")}
-          className={`px-4 py-2 rounded-lg ${
+          onClick={() =>
+            setTab("user")
+          }
+          className={`px-5 py-2 rounded-xl font-medium transition
+          ${
             tab === "user"
-              ? "bg-[#32AEBB] text-white"
-              : "bg-gray-200"
+              ? "bg-[#32AEBB] text-white shadow"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
         >
           Users
         </button>
 
+        {/* TRAVELER */}
         <button
-          onClick={() => setTab("traveler")}
-          className={`px-4 py-2 rounded-lg ${
+          onClick={() =>
+            setTab("traveler")
+          }
+          className={`px-5 py-2 rounded-xl font-medium transition
+          ${
             tab === "traveler"
-              ? "bg-[#32AEBB] text-white"
-              : "bg-gray-200"
+              ? "bg-[#32AEBB] text-white shadow"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
         >
           Travelers
         </button>
+
+        {/* AGENT */}
+        <button
+          onClick={() =>
+            setTab("agent")
+          }
+          className={`px-5 py-2 rounded-xl font-medium transition
+          ${
+            tab === "agent"
+              ? "bg-[#32AEBB] text-white shadow"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          Agents
+        </button>
+
       </div>
 
-      {/* 🔥 TABLE */}
-      <div className="overflow-x-auto bg-white rounded-xl shadow">
+      {/* ================= TABLE ================= */}
+      <div className="overflow-x-auto bg-white rounded-2xl shadow border border-gray-100">
 
         <table className="w-full text-left">
 
-          <thead className="bg-gray-100 text-gray-600 text-sm">
-            <tr>
-              <th className="p-3">#</th>
-              <th className="p-3">Image</th>
-              <th className="p-3">Name</th>
-              <th className="p-3">Email</th>
-              <th className="p-3">Role</th>
+          {/* HEADER */}
+          <thead className="bg-gray-50 text-gray-600 text-sm">
 
-              {/* 🔥 TYPE ONLY FOR USER */}
+            <tr>
+
+              <th className="p-4">
+                #
+              </th>
+
+              <th className="p-4">
+                Image
+              </th>
+
+              <th className="p-4">
+                Name
+              </th>
+
+              <th className="p-4">
+                Email
+              </th>
+
+              <th className="p-4">
+                Role
+              </th>
+
+              {/* ONLY USER */}
               {tab === "user" && (
-                <th className="p-3">Type</th>
+                <th className="p-4">
+                  Subscription
+                </th>
               )}
+
             </tr>
+
           </thead>
 
+          {/* BODY */}
           <tbody>
-            {filteredUsers.map((user, index) => (
-              <tr key={user._id} className="border-t hover:bg-gray-50">
 
-                <td className="p-3">{index + 1}</td>
+            {filteredUsers.map(
+              (user, index) => (
 
-                {/* 🔥 IMAGE FIX */}
-                <td className="p-3">
-                  <img
-                    src={
-                      user.image
-                        ? user.image.includes("uploads")
-                          ? `http://localhost:3000/${user.image}`
-                          : `http://localhost:3000/uploads/${user.image}`
-                        : "https://via.placeholder.com/40"
-                    }
-                    className="w-10 h-10 rounded-full object-cover border"
-                  />
-                </td>
+                <tr
+                  key={user._id}
+                  className="border-t hover:bg-gray-50 transition"
+                >
 
-                <td className="p-3 font-medium">{user.name}</td>
+                  {/* INDEX */}
+                  <td className="p-4">
+                    {index + 1}
+                  </td>
 
-                <td className="p-3 text-gray-500">{user.email}</td>
+                  {/* IMAGE */}
+                  <td className="p-4">
 
-                <td className="p-3">
-                  <span
-                    className={`px-2 py-1 text-xs rounded-full ${
-                      user.role === "traveler"
-                        ? "bg-purple-100 text-purple-600"
-                        : "bg-blue-100 text-blue-600"
-                    }`}
-                  >
-                    {user.role}
-                  </span>
-                </td>
+                    <img
+                      src={
+                        user.image
+                          ? user.image.includes(
+                              "uploads"
+                            )
+                            ? `http://localhost:3000/${user.image}`
+                            : `http://localhost:3000/uploads/${user.image}`
+                          : "https://via.placeholder.com/40"
+                      }
+                      className="w-11 h-11 rounded-full object-cover border"
+                    />
 
-                {/* 🔥 TYPE COLUMN */}
-                {tab === "user" && (
-                  <td className="p-3">
+                  </td>
+
+                  {/* NAME */}
+                  <td className="p-4 font-medium">
+                    {user.name}
+                  </td>
+
+                  {/* EMAIL */}
+                  <td className="p-4 text-gray-500">
+                    {user.email}
+                  </td>
+
+                  {/* ROLE */}
+                  <td className="p-4">
+
                     <span
-                      className={`px-2 py-1 text-xs rounded-full font-medium
+                      className={`px-3 py-1 text-xs rounded-full font-medium
                       ${
-                        user.userType === "active"
-                          ? "bg-green-100 text-green-600"
-                          : user.userType === "expired"
-                          ? "bg-red-100 text-red-600"
+                        user.role === "traveler"
+                          ? "bg-purple-100 text-purple-600"
+
+                          : user.role === "agent"
+                          ? "bg-blue-100 text-blue-600"
+
                           : "bg-gray-100 text-gray-600"
                       }`}
                     >
-                      {user.userType || "free"}
+                      {user.role}
                     </span>
-                  </td>
-                )}
 
-              </tr>
-            ))}
+                  </td>
+
+                  {/* USER SUBSCRIPTION */}
+                  {tab === "user" && (
+
+                    <td className="p-4">
+
+                      <span
+                        className={`px-3 py-1 text-xs rounded-full font-medium
+                        ${
+                          user.subscription?.status ===
+                          "active"
+                            ? "bg-green-100 text-green-600"
+
+                            : user.subscription?.status ===
+                              "expired"
+                            ? "bg-red-100 text-red-600"
+
+                            : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {user.subscription
+                          ?.status || "free"}
+                      </span>
+
+                    </td>
+
+                  )}
+
+                </tr>
+
+              )
+            )}
+
           </tbody>
 
         </table>
 
-        {/* EMPTY STATE */}
+        {/* EMPTY */}
         {filteredUsers.length === 0 && (
-          <div className="p-6 text-center text-gray-500">
+
+          <div className="p-8 text-center text-gray-500">
+
             No {tab} found 😢
+
           </div>
+
         )}
 
       </div>
+
     </div>
   );
 };

@@ -9,7 +9,7 @@ export interface IUser {
 
   image: string;
 
-  role: "user" | "traveler" | "admin";
+  role: "user" | "traveler" | "agent" | "admin";
 
   subscription: {
     status: "free" | "active" | "expired";

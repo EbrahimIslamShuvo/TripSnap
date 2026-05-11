@@ -265,6 +265,46 @@ const saveBlog = async (
   }
 };
 
+const createTeamMember = async (
+  req: any,
+  res: Response
+) => {
+
+  try {
+
+    // ADMIN CHECK
+    if (req.user.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const result =
+      await UserService.createTeamMember(
+        req.body,
+        req.file
+      );
+
+    res.json({
+      success: true,
+      message:
+        "Team member created successfully",
+      data: result,
+    });
+
+  } catch (err: any) {
+
+    console.log(err);
+
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+
+  }
+};
+
 export const UserController = {
   register,
   login,
@@ -276,5 +316,6 @@ export const UserController = {
   getAllUsers,
   getSingleUser,
   savePlace,
-  saveBlog
+  saveBlog,
+  createTeamMember,
 };

@@ -1,49 +1,62 @@
-import { Request, Response } from "express";
+// ==============================
+// Payment.controller.ts
+// ==============================
 
-import { PaymentService } from "./Payment.service";
-import { AuthRequest } from "../../middleware/auth.middleware";
+import {
+  Request,
+  Response
+} from "express";
+
+import {
+  PaymentService
+} from "./Payment.service";
+
+import {
+  AuthRequest
+} from "../../middleware/auth.middleware";
 
 // ======================================
-// CREATE PAYMENT
+// CREATE SUBSCRIPTION PAYMENT
 // ======================================
 
-const createPayment = async (
-  req: AuthRequest,
-  res: Response
-) => {
-  try {
+const createPayment =
+  async (
+    req: AuthRequest,
+    res: Response
+  ) => {
 
-    const user = req.user;
+    try {
 
-    const { plan } = req.body;
+      const user =
+        req.user;
 
-    const result =
-      await PaymentService.createPaymentIntoDB(
-        user,
-        plan
-      );
+      const { plan } =
+        req.body;
 
-    res.status(200).json({
-      success: true,
-      url: result.url,
-    });
+      const result =
+        await PaymentService
+          .createPaymentIntoDB(
+            user,
+            plan
+          );
 
-  } catch (err: any) {
+      res.status(200).json({
+        success: true,
+        url: result.url,
+      });
 
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
-  }
-};
+    } catch (err: any) {
 
+      res.status(500).json({
+        success: false,
+        message:
+          err.message,
+      });
+    }
+  };
 
-// =====================================
+// ======================================
 // GET ALL PAYMENT
-// =====================================
-
-// ======================================
-// GET ALL PAYMENTS
 // ======================================
 
 const getAllPayments =
@@ -55,7 +68,8 @@ const getAllPayments =
     try {
 
       const result =
-        await PaymentService.getAllPayments();
+        await PaymentService
+          .getAllPayments();
 
       res.status(200).json({
         success: true,
@@ -66,111 +80,272 @@ const getAllPayments =
 
       res.status(500).json({
         success: false,
-        message: err.message,
+        message:
+          err.message,
       });
     }
   };
 
+// ======================================
+// SUBSCRIPTION SUCCESS
+// ======================================
 
-// ==========================================
+const successPayment =
+  async (
+    req: Request,
+    res: Response
+  ) => {
 
-const successPayment = async (
-  req: Request,
-  res: Response
-) => {
+    try {
 
-  try {
+      const transactionId =
+        req.params.transactionId;
 
-    const transactionId =
-      typeof req.params.transactionId ===
-      "string"
-        ? req.params.transactionId
-        : "";
+      await PaymentService
+        .paymentSuccess(
+          transactionId as string
+        );
 
-    await PaymentService.paymentSuccess(
-      transactionId
-    );
+      return res.redirect(
+        "http://localhost:5173/dashboard/user/subscription?success=true"
+      );
 
-    return res.redirect(
-      "http://localhost:5173/dashboard/user/subscription?success=true"
-    );
+    } catch (err) {
 
-  } catch (err) {
+      return res.redirect(
+        "http://localhost:5173/dashboard/user/subscription?failed=true"
+      );
+    }
+  };
 
-    console.log(err);
+// ======================================
+// SUBSCRIPTION FAIL
+// ======================================
 
-    return res.redirect(
-      "http://localhost:5173/dashboard/user/subscription?failed=true"
-    );
-  }
-};
+const failPayment =
+  async (
+    req: Request,
+    res: Response
+  ) => {
 
-// ==========================================
+    try {
 
-const failPayment = async (
-  req: Request,
-  res: Response
-) => {
+      const transactionId =
+        req.params.transactionId;
 
-  try {
+      await PaymentService
+        .paymentFail(
+          transactionId as string
+        );
 
-    const transactionId =
-      typeof req.params.transactionId ===
-      "string"
-        ? req.params.transactionId
-        : "";
+      return res.redirect(
+        "http://localhost:5173/dashboard/user/subscription?failed=true"
+      );
 
-    await PaymentService.paymentFail(
-      transactionId
-    );
+    } catch (err) {
 
-    return res.redirect(
-      "http://localhost:5173/dashboard/user/subscription?failed=true"
-    );
+      console.log(err);
+    }
+  };
 
-  } catch (err) {
+// ======================================
+// SUBSCRIPTION CANCEL
+// ======================================
 
-    console.log(err);
-  }
-};
+const cancelPayment =
+  async (
+    req: Request,
+    res: Response
+  ) => {
 
-// ==========================================
+    try {
 
-const cancelPayment = async (
-  req: Request,
-  res: Response
-) => {
+      const transactionId =
+        req.params.transactionId;
 
-  try {
+      await PaymentService
+        .paymentCancel(
+          transactionId as string
+        );
 
-    const transactionId =
-      typeof req.params.transactionId ===
-      "string"
-        ? req.params.transactionId
-        : "";
+      return res.redirect(
+        "http://localhost:5173/dashboard/user/subscription?cancel=true"
+      );
 
-    await PaymentService.paymentCancel(
-      transactionId
-    );
+    } catch (err) {
 
-    return res.redirect(
-      "http://localhost:5173/dashboard/user/subscription?cancel=true"
-    );
+      console.log(err);
+    }
+  };
 
-  } catch (err) {
+// ======================================
+// CREATE TOUR PAYMENT
+// ======================================
 
-    console.log(err);
-  }
-};
+const createTourPayment =
+  async (
+    req: any,
+    res: Response
+  ) => {
+
+    try {
+
+      const result =
+        await PaymentService
+          .createTourPaymentService(
+            req.body,
+            req.user.id
+          );
+
+      const apiResponse =
+        result.payment;
+
+      if (
+        apiResponse?.GatewayPageURL
+      ) {
+
+        return res.status(200).json({
+          success: true,
+          message:
+            "Payment URL generated successfully",
+          url:
+            apiResponse.GatewayPageURL,
+        });
+      }
+
+      return res.status(400).json({
+        success: false,
+        message:
+          "SSL payment url not generated",
+        data:
+          apiResponse,
+      });
+
+    } catch (err: any) {
+
+      res.status(500).json({
+        success: false,
+        message:
+          err.message,
+      });
+    }
+  };
+
+// ======================================
+// TOUR PAYMENT SUCCESS
+// ======================================
+
+const tourPaymentSuccess =
+  async (
+    req: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const bookingId =
+        req.params.bookingId;
+
+      await PaymentService
+        .tourPaymentSuccess(
+          bookingId as string
+        );
+
+      return res.redirect(
+        "http://localhost:5173/dashboard/user/my-tour"
+      );
+
+    } catch (err) {
+
+      console.log(err);
+
+      return res.redirect(
+        "http://localhost:5173/dashboard/user/my-tour"
+      );
+    }
+  };
+
+// ======================================
+// TOUR PAYMENT FAIL
+// ======================================
+
+const tourPaymentFail =
+  async (
+    req: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const bookingId =
+        req.params.bookingId;
+
+      await PaymentService
+        .tourPaymentFail(
+          bookingId as string
+        );
+
+      return res.redirect(
+        "http://localhost:5173/dashboard/user/my-tour?failed=true"
+      );
+
+    } catch (err) {
+
+      console.log(err);
+    }
+  };
+
+// ======================================
+// TOUR PAYMENT CANCEL
+// ======================================
+
+const tourPaymentCancel =
+  async (
+    req: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const bookingId =
+        req.params.bookingId;
+
+      await PaymentService
+        .tourPaymentCancel(
+          bookingId as string
+        );
+
+      return res.redirect(
+        "http://localhost:5173/dashboard/user/my-tour?cancel=true"
+      );
+
+    } catch (err) {
+
+      console.log(err);
+    }
+  };
+
+// ======================================
+// EXPORT
+// ======================================
 
 export const PaymentController =
-  {
-    createPayment,
+{
+  createPayment,
 
-    successPayment,
+  successPayment,
 
-    failPayment,
+  failPayment,
 
-    cancelPayment,
-    getAllPayments
-  };
+  cancelPayment,
+
+  getAllPayments,
+
+  createTourPayment,
+
+  tourPaymentSuccess,
+
+  tourPaymentFail,
+
+  tourPaymentCancel,
+};

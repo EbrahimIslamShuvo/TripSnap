@@ -27,5 +27,34 @@ export declare const UserService: {
         id: string;
     }>;
     changePassword: (userId: string, oldPassword: string, newPassword: string) => Promise<void>;
+    getAllUsers: () => Promise<(import("mongoose").Document<unknown, {}, import("./User.interface").IUser, {}, import("mongoose").DefaultSchemaOptions> & import("./User.interface").IUser & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    } & {
+        id: string;
+    })[]>;
+    getSingleUser: (id: string) => Promise<import("mongoose").Document<unknown, {}, import("./User.interface").IUser, {}, import("mongoose").DefaultSchemaOptions> & import("./User.interface").IUser & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    } & {
+        id: string;
+    }>;
+    savePlace: (userId: string, placeId: string) => Promise<{
+        saved: boolean;
+        message: string;
+    }>;
+    saveBlog: (userId: string, blogId: string) => Promise<{
+        saved: boolean;
+        message: string;
+    }>;
+    createTravelerOrAgent: (payload: any) => Promise<import("mongoose").Document<unknown, {}, import("./User.interface").IUser, {}, import("mongoose").DefaultSchemaOptions> & import("./User.interface").IUser & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    } & {
+        id: string;
+    }>;
 };
 //# sourceMappingURL=User.service.d.ts.map

@@ -8,7 +8,7 @@ const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const uploadPath = "uploads/";
-// 🔥 auto create folder
+// AUTO CREATE FOLDER
 if (!fs_1.default.existsSync(uploadPath)) {
     fs_1.default.mkdirSync(uploadPath);
 }
@@ -17,9 +17,14 @@ const storage = multer_1.default.diskStorage({
         cb(null, uploadPath);
     },
     filename: (req, file, cb) => {
-        const uniqueName = Date.now() + path_1.default.extname(file.originalname);
+        const uniqueName = Date.now() +
+            "-" +
+            Math.round(Math.random() * 1e9) +
+            path_1.default.extname(file.originalname);
         cb(null, uniqueName);
     },
 });
-exports.upload = (0, multer_1.default)({ storage });
+exports.upload = (0, multer_1.default)({
+    storage,
+});
 //# sourceMappingURL=multer.js.map
