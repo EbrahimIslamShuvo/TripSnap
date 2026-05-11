@@ -337,14 +337,18 @@ const SingleTour = () => {
                         </div>
 
                         <p className="text-gray-500 mb-2">
-                            Start Date
+                            Duration
                         </p>
 
-                        <h3 className="text-2xl font-bold">
+                        <h3 className="text-lg font-bold">
 
                             {
                                 new Date(
                                     tour.startDate
+                                ).toLocaleDateString()
+                            } - {
+                                new Date(
+                                    tour.endDate
                                 ).toLocaleDateString()
                             }
 
@@ -565,99 +569,161 @@ const SingleTour = () => {
                     {/* QUANTITY */}
                     <div className="mb-10">
 
-                        <label className="block text-xl font-semibold mb-5">
-                            Package Quantity
+                        <label className="block text-2xl font-bold mb-6">
+                            Select Quantity
                         </label>
 
-                        <div className="flex items-center gap-5 mb-6">
+                        <div className="bg-[#F8FAFC] border border-gray-200 rounded-3xl p-6">
 
-                            {/* MINUS */}
-                            <button
-                                onClick={() =>
-                                    quantity > 1 &&
-                                    setQuantity(
-                                        quantity - 1
-                                    )
-                                }
-                                className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center text-xl"
-                            >
+                            {/* CONTROLLER */}
+                            <div className="flex items-center justify-between">
 
-                                <FaMinus />
+                                {/* LEFT */}
+                                <div>
 
-                            </button>
+                                    <h3 className="text-xl font-bold mb-2">
+                                        Package Quantity
+                                    </h3>
 
-                            {/* QTY */}
-                            <div className="w-20 h-14 rounded-2xl border flex items-center justify-center text-2xl font-bold">
+                                    <p className="text-gray-500">
+                                        Choose how many packages you want to book
+                                    </p>
 
-                                {
-                                    quantity
-                                }
+                                </div>
+
+                                {/* BUTTONS */}
+                                <div className="flex items-center gap-5">
+
+                                    {/* MINUS */}
+                                    <button
+                                        onClick={() =>
+                                            quantity > 1 &&
+                                            setQuantity(
+                                                quantity - 1
+                                            )
+                                        }
+                                        className="
+                        w-14
+                        h-14
+                        rounded-2xl
+                        bg-white
+                        border
+                        shadow-sm
+                        flex
+                        items-center
+                        justify-center
+                        text-lg
+                        hover:bg-gray-100
+                        transition
+                    "
+                                    >
+
+                                        <FaMinus />
+
+                                    </button>
+
+                                    {/* QTY */}
+                                    <div
+                                        className="
+                        min-w-[90px]
+                        h-16
+                        rounded-2xl
+                        bg-[#32AEBB]
+                        text-white
+                        flex
+                        items-center
+                        justify-center
+                        text-3xl
+                        font-black
+                        shadow-lg
+                    "
+                                    >
+
+                                        {quantity}
+
+                                    </div>
+
+                                    {/* PLUS */}
+                                    <button
+                                        onClick={() => {
+
+                                            if (
+                                                totalTravelers +
+                                                getPersonCount() <=
+                                                remainingSeats
+                                            ) {
+
+                                                setQuantity(
+                                                    quantity + 1
+                                                );
+                                            }
+                                        }}
+                                        className="
+                        w-14
+                        h-14
+                        rounded-2xl
+                        bg-[#32AEBB]
+                        text-white
+                        flex
+                        items-center
+                        justify-center
+                        text-lg
+                        hover:bg-[#2897a4]
+                        transition
+                    "
+                                    >
+
+                                        <FaPlus />
+
+                                    </button>
+
+                                </div>
 
                             </div>
 
-                            {/* PLUS */}
-                            <button
-                                onClick={() => {
+                            {/* INFO */}
+                            <div className="grid grid-cols-3 gap-5 mt-8">
 
-                                    if (
-                                        totalTravelers +
-                                        getPersonCount() <=
-                                        remainingSeats
-                                    ) {
+                                {/* TRAVELERS */}
+                                <div className="bg-white rounded-2xl p-5 border">
 
-                                        setQuantity(
-                                            quantity + 1
-                                        );
-                                    }
-                                }}
-                                className="w-14 h-14 rounded-2xl bg-[#32AEBB] text-white flex items-center justify-center text-xl"
-                            >
+                                    <p className="text-gray-500 mb-2">
+                                        Total Travelers
+                                    </p>
 
-                                <FaPlus />
+                                    <h3 className="text-3xl font-black">
+                                        {totalTravelers}
+                                    </h3>
 
-                            </button>
+                                </div>
 
-                        </div>
+                                {/* SEATS */}
+                                <div className="bg-white rounded-2xl p-5 border">
 
-                        {/* INFO */}
-                        <div className="space-y-3 text-lg">
+                                    <p className="text-gray-500 mb-2">
+                                        Remaining Seats
+                                    </p>
 
-                            <p>
-                                Total Travelers:
-                                {" "}
-                                <span className="font-bold">
+                                    <h3 className="text-3xl font-black text-[#32AEBB]">
+                                        {remainingSeats}
+                                    </h3>
 
-                                    {
-                                        totalTravelers
-                                    }
+                                </div>
 
-                                </span>
-                            </p>
+                                {/* PRICE */}
+                                <div className="bg-white rounded-2xl p-5 border">
 
-                            <p>
-                                Remaining Seats:
-                                {" "}
-                                <span className="font-bold text-[#32AEBB]">
+                                    <p className="text-gray-500 mb-2">
+                                        Total Price
+                                    </p>
 
-                                    {
-                                        remainingSeats
-                                    }
+                                    <h3 className="text-3xl font-black text-[#32AEBB]">
+                                        ৳{totalPrice}
+                                    </h3>
 
-                                </span>
-                            </p>
+                                </div>
 
-                            <p>
-                                Total Price:
-                                {" "}
-                                <span className="font-bold text-[#32AEBB] text-2xl">
-
-                                    ৳
-                                    {
-                                        totalPrice
-                                    }
-
-                                </span>
-                            </p>
+                            </div>
 
                         </div>
 
@@ -735,67 +801,6 @@ const SingleTour = () => {
                                                 {" "}
                                                 {
                                                     place.country
-                                                }
-
-                                            </p>
-
-                                        </div>
-
-                                    </div>
-
-                                )
-                            )
-                        }
-
-                    </div>
-
-                </div>
-
-                {/* RELATED BLOGS */}
-                <div>
-
-                    <div className="flex items-center gap-3 mb-8">
-
-                        <FaBookOpen className="text-[#32AEBB] text-3xl" />
-
-                        <h2 className="text-4xl font-bold">
-                            Related Blogs
-                        </h2>
-
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-8">
-
-                        {
-                            tour.relatedBlogs?.map(
-                                (blog) => (
-
-                                    <div
-                                        key={
-                                            blog._id
-                                        }
-                                        className="bg-white rounded-3xl overflow-hidden shadow-xl"
-                                    >
-
-                                        <img
-                                            src={`http://localhost:3000/${blog.thumbnail}`}
-                                            className="h-64 w-full object-cover"
-                                        />
-
-                                        <div className="p-6">
-
-                                            <h3 className="text-2xl font-bold mb-3 line-clamp-2">
-
-                                                {
-                                                    blog.title
-                                                }
-
-                                            </h3>
-
-                                            <p className="text-gray-500 line-clamp-3">
-
-                                                {
-                                                    blog.description
                                                 }
 
                                             </p>
@@ -955,6 +960,11 @@ const SingleTour = () => {
                                 <FaCheckCircle />
 
                             </button>
+                            <p className="text-center text-sm text-red-500 mt-5 font-medium">
+
+                                No refund available after booking confirmation.
+
+                            </p>
 
                         </div>
 

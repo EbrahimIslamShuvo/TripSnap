@@ -141,7 +141,7 @@ const Navbar = () => {
                                         if (user.role === "admin") {
                                             navigate("/dashboard/admin");
                                         } else if (user.role === "traveler") {
-                                            navigate("/dashboard/creator");
+                                            navigate("/dashboard/traveler");
                                         } else {
                                             navigate("/dashboard/user");
                                         }

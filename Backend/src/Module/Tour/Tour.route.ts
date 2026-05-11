@@ -78,6 +78,14 @@ router.get(
   TourController.getAllTours
 );
 
+router.post(
+  "/send-update",
+
+  authMiddleware,
+
+  TourController.sendTourUpdate
+);
+
 // ================= GET SINGLE =================
 router.get(
   "/:id",

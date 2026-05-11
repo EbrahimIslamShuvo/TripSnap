@@ -236,7 +236,6 @@ const getAllTours =
         message:
           err.message,
       });
-
     }
   };
 
@@ -266,7 +265,6 @@ const getSingleTour =
         message:
           err.message,
       });
-
     }
   };
 
@@ -298,10 +296,51 @@ const getTourSales =
     }
   };
 
+  // =====================================
+// SEND TOUR UPDATE
+// =====================================
+
+const sendTourUpdate =
+  async (
+    req: any,
+    res: Response
+  ) => {
+
+    try {
+
+      const {
+        tourId,
+        message,
+      } = req.body;
+
+      const result =
+        await TourService.sendTourUpdate(
+          tourId,
+          message
+        );
+
+      res.json({
+        success: true,
+        message:
+          "Update sent successfully",
+        data: result,
+      });
+
+    } catch (err: any) {
+
+      res.status(500).json({
+        success: false,
+        message:
+          err.message,
+      });
+    }
+  };
+
 export const TourController = {
   createTour,
   relaunchTour,
   getAllTours,
   getSingleTour,
   getTourSales,
+  sendTourUpdate,
 };

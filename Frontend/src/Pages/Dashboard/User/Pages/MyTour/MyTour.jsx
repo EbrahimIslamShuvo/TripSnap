@@ -2,6 +2,7 @@ import React, {
     useEffect,
     useState,
 } from "react";
+import { NavLink } from "react-router-dom";
 
 const MyTour = () => {
 
@@ -128,11 +129,8 @@ const MyTour = () => {
                             {/* IMAGE */}
 
                             <div className="relative">
-
                                 <img
-                                    src={
-                                        booking?.tour?.thumbnailCard
-                                    }
+                                    src={`http://localhost:3000/${booking?.tour?.thumbnailCard}`}
                                     alt={
                                         booking?.tour?.title
                                     }
@@ -172,11 +170,11 @@ const MyTour = () => {
 
                                 <div>
 
-                                    <h3 className="text-2xl font-bold">
+                                    <NavLink to={`/tripsnap/tour/${booking?.tour?._id}`} className="text-2xl font-bold">
                                         {
                                             booking?.tour?.title
                                         }
-                                    </h3>
+                                    </NavLink>
 
                                 </div>
 
@@ -196,6 +194,10 @@ const MyTour = () => {
                                             {
                                                 booking?.tour?.startDate
                                                     ? new Date(booking.tour.startDate).toLocaleDateString()
+                                                    : "N/A"
+                                            }-{
+                                                booking?.tour?.endDate
+                                                    ? new Date(booking.tour.endDate).toLocaleDateString()
                                                     : "N/A"
                                             }
                                         </span>

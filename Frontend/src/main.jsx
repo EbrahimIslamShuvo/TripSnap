@@ -26,7 +26,6 @@ import Message from './Pages/Dashboard/Admin/Pages/Message/Message';
 import AllPlaces from './Pages/Dashboard/Admin/Pages/Places/AllPlaces';
 import Sales from './Pages/Dashboard/Admin/Pages/Sales/Sales';
 import UsersList from './Pages/Dashboard/Admin/Pages/Users/UsersList';
-import AddPlace from './Pages/Dashboard/ContentCreator/Pages/AddPlace/AddPlace';
 import MyReview from './Pages/Dashboard/User/Pages/MyReview/MyReview';
 import SavedPlace from './Pages/Dashboard/User/Pages/SavedPlace/SavedPlace';
 import SavedBlog from './Pages/Dashboard/User/Pages/SavedBlog/SavedBlog';
@@ -46,26 +45,17 @@ import Update from './Pages/Dashboard/Agent/Pages/Update/Update';
 import TourPage from './Pages/Website/Tour/TourPage';
 import SingleTour from './Pages/Website/Tour/SingleTour';
 import MyTour from './Pages/Dashboard/User/Pages/MyTour/MyTour';
+import AddPlace from './Pages/Dashboard/ContentCreator/Pages/AddPlace/AddPlace';
+import Tours from './Pages/Dashboard/Admin/Pages/Tours/Tours';
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Root />,
+  { path: "/", element: <Root />,
     children: [
-      {
-        path: "/",
-        element: <Login />,
-      },
+      { path: "/", element: <Login />, },
     ],
   },
 
-  {
-    path: "/tripsnap",
-    element: (
-      <VerifiedUser>
-        <MainLayout />
-      </VerifiedUser>
-    ),
+  { path: "/tripsnap", element: ( <VerifiedUser> <MainLayout /> </VerifiedUser> ),
     children: [
       { path: "/tripsnap", element: <Home /> },
       { path: "/tripsnap/place", element: <Place /> },
@@ -81,137 +71,47 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: (
-
-      <DashboardLayout />
-    ),
+    element: ( <DashboardLayout /> ),
     children: [
-      {
-        index: true,
-        element: <h1>Dashboard Home</h1>,
-      },
-      {
-        path: "user",
-        element: <User />,
-        children: [
-          {
-            index: true,
-            element: <Profile />
-          },
-          {
-            path: "myreview",
-            element: <MyReview />
-          },
-          {
-            path: "savedplace",
-            element: <SavedPlace />
-          },
-          {
-            path: "savedblog",
-            element: <SavedBlog />
-          },
-          {
-            path: "my-tour",
-            element: <MyTour />
-          },
-          {
-            path: "subscription",
-            element: <Subscription />
-          },
+      { index: true, element: <h1>Dashboard Home</h1>, },
+      { path: "user", element: <User />, children: [
+          { index: true, element: <Profile /> },
+          { path: "myreview", element: <MyReview /> },
+          { path: "savedplace", element: <SavedPlace /> },
+          { path: "savedblog", element: <SavedBlog /> },
+          { path: "my-tour", element: <MyTour /> },
+          { path: "subscription", element: <Subscription /> },
         ]
       },
-      {
-        path: "creator",
-        element: <ContentCreator />,
+      { path: "traveler", element: <ContentCreator />,
         children: [
-          {
-            index: true,
-            element: <Profile />
-          },
-          {
-            path: "addblog",
-            element: <AddBlog />
-          },
-          {
-            path: "addplace",
-            element: <AddPlace />
-          },
-          {
-            path: "myblogs",
-            element: <MyBlog />
-          },
-          {
-            path: "edit-blog/:id",
-            element: <EditBlog />
-          },
+          { index: true, element: <Profile /> },
+          { path: "addblog", element: <AddBlog /> },
+          { path: "addplace", element: <AddPlace /> },
+          { path: "myblogs", element: <MyBlog /> },
+          { path: "edit-blog/:id", element: <EditBlog /> },
         ]
       },
-      {
-        path: "admin",
-        element: <Admin />,
+      { path: "admin", element: <Admin />,
         children: [
-          {
-            index: true,
-            element: <Profile />
-          },
-          {
-            path: "blog",
-            element: <AllBlogs />
-          },
-          {
-            path: "cratorActivities",
-            element: <CreatorActivites />
-          },
-          {
-            path: "message",
-            element: <Message />
-          },
-          {
-            path: "place",
-            element: <AllPlaces />
-          },
-          {
-            path: "sales",
-            element: <Sales />
-          },
-          {
-            path: "team-management",
-            element: <Teammanagemment />
-          },
-          {
-            path: "user",
-            element: <UsersList />
-          },
+          { index: true, element: <Profile /> },
+          { path: "blog", element: <AllBlogs /> },
+          { path: "cratorActivities", element: <CreatorActivites /> },
+          { path: "message", element: <Message /> },
+          { path: "place", element: <AllPlaces /> },
+          { path: "sales", element: <Sales /> },
+          { path: "team-management", element: <Teammanagemment /> },
+          { path: "user", element: <UsersList /> },
+          { path: "tours", element: <Tours /> },
         ]
       },
-      {
-        path: "agent",
-        element: <Agent />,
+      { path: "agent", element: <Agent />,
         children: [
-          {
-            index: true,
-            element: <Profile />
-          },
-
-          {
-            path: "add-tour",
-            element: <LaunchTour />
-          },
-
-          {
-            path: "our-tours",
-            element: <Tour />
-          },
-
-          {
-            path: "bookings",
-            element: <Booking />
-          },
-
-          {
-            path: "send-update",
-            element: <Update />
-          },
+          { index: true, element: <Profile /> },
+          { path: "add-tour", element: <LaunchTour /> },
+          { path: "our-tours", element: <Tour /> },
+          { path: "bookings", element: <Booking /> },
+          { path: "send-update", element: <Update /> },
         ]
       }
     ],

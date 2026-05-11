@@ -57,6 +57,15 @@ const bookingSchema =
             timestamps: true,
         }
     );
+bookingSchema.index(
+    {
+        user: 1,
+        tour: 1,
+    },
+    {
+        unique: true,
+    }
+);
 
 export const Booking =
     model<IBooking>(

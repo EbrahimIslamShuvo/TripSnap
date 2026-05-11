@@ -27,19 +27,20 @@ const createBooking =
         packageType:
           req.body.packageType,
 
-        totalPeople:
-          Number(
-            req.body.totalPeople
-          ),
+        quantity: Number(
+          req.body.quantity
+        ),
 
-        totalCost:
-          Number(
-            req.body.totalCost
-          ),
+        travelers: Number(
+          req.body.travelers
+        ),
+
+        amount: Number(
+          req.body.amount
+        ),
 
         transactionId:
-          req.body
-            .transactionId,
+          req.body.transactionId,
       };
 
       const result =
@@ -56,7 +57,7 @@ const createBooking =
 
     } catch (err: any) {
 
-      res.status(500).json({
+      res.status(400).json({
         success: false,
         message:
           err.message,
@@ -64,6 +65,7 @@ const createBooking =
 
     }
   };
+
 
 // ================= GET ALL =================
 const getAllBookings =

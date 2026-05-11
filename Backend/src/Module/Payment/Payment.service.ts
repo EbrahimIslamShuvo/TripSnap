@@ -12,6 +12,8 @@ import { Payment } from "./Payment.model";
 import { User } from "../User/User.model";
 
 import { Booking } from "../Booking/Booking.model";
+import { sendEmail } from "../../utils/sendEmail";
+import { Tour } from "../Tour/Tour.model";
 
 // ==========================================
 // SSL CONFIG
@@ -306,17 +308,132 @@ const createTourPaymentService =
       amount,
     } = payload;
 
+    // ======================================
+    // 🔥 FIND CURRENT TOUR
+    // ======================================
+
+    const currentTour: any =
+      await Tour.findById(
+        tourId
+      );
+
+    if (!currentTour) {
+
+      throw new Error(
+        "Tour not found"
+      );
+    }
+
+    // ======================================
+    // 🔥 SAME TOUR CHECK
+    // ======================================
+
+    const sameTourBooking =
+      await Booking.findOne({
+
+        user: userId,
+
+        tour: tourId,
+
+        paymentStatus: {
+          $nin: [
+            "failed",
+            "cancelled",
+          ],
+        },
+      });
+
+    if (sameTourBooking) {
+
+      throw new Error(
+        "You already booked this tour"
+      );
+    }
+
+    // ======================================
+    // 🔥 DATE OVERLAP CHECK
+    // ======================================
+
+    const userBookings =
+      await Booking.find({
+
+        user: userId,
+
+        paymentStatus: {
+          $nin: [
+            "failed",
+            "cancelled",
+          ],
+        },
+      }).populate("tour");
+
+    const hasOverlappingTour =
+      userBookings.some(
+        (booking: any) => {
+
+          const bookedTour =
+            booking.tour;
+
+          const bookedStart =
+            new Date(
+              bookedTour.startDate
+            );
+
+          const bookedEnd =
+            new Date(
+              bookedTour.endDate
+            );
+
+          const currentStart =
+            new Date(
+              currentTour.startDate
+            );
+
+          const currentEnd =
+            new Date(
+              currentTour.endDate
+            );
+
+          return (
+            currentStart <= bookedEnd &&
+            currentEnd >= bookedStart
+          );
+        }
+      );
+
+    if (hasOverlappingTour) {
+
+      throw new Error(
+        "You already booked another tour on overlapping dates"
+      );
+    }
+
+    // ======================================
+    // 🔥 CREATE BOOKING
+    // ======================================
+
     const booking: any =
       await Booking.create({
+
         user: userId,
+
         tour: tourId,
+
         packageType,
+
         quantity,
+
         travelers,
+
         amount,
+
         paymentStatus:
           "pending",
       });
+
+    // ======================================
+    // 🔥 SSL DATA
+    // ======================================
 
     const data = {
 
@@ -394,11 +511,15 @@ const createTourPaymentService =
       await sslcz.init(data);
 
     return {
+
       booking,
+
       payment:
         apiResponse,
     };
   };
+
+
 
 // ==========================================
 // TOUR PAYMENT SUCCESS
@@ -409,12 +530,201 @@ const tourPaymentSuccess =
     bookingId: string
   ) => {
 
-    await Booking.findByIdAndUpdate(
-      bookingId,
-      {
-        paymentStatus:
-          "paid",
-      }
+    // ======================================
+    // 🔥 UPDATE PAYMENT STATUS
+    // ======================================
+
+    const booking: any =
+      await Booking.findByIdAndUpdate(
+
+        bookingId,
+
+        {
+          paymentStatus:
+            "paid",
+        },
+
+        {
+          new: true,
+        }
+      )
+
+        .populate("user")
+
+        .populate("tour");
+
+    if (!booking) {
+
+      throw new Error(
+        "Booking not found"
+      );
+    }
+
+    const user =
+      booking.user;
+
+    const tour =
+      booking.tour;
+
+    // ======================================
+    // 🔥 SEND INVOICE EMAIL
+    // ======================================
+
+    await sendEmail(
+
+      user.email,
+
+      `
+      <div style="font-family: Arial, sans-serif; background:#f4f4f4; padding:40px;">
+
+        <div style="max-width:700px; margin:auto; background:white; border-radius:16px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+
+          <!-- HEADER -->
+          <div style="background:#32AEBB; padding:35px; text-align:center; color:white;">
+
+            <h1 style="margin:0; font-size:32px;">
+              TripSnap Tour Invoice
+            </h1>
+
+            <p style="margin-top:10px; font-size:15px;">
+              Your booking has been confirmed successfully
+            </p>
+
+          </div>
+
+          <!-- BODY -->
+          <div style="padding:40px; color:#333;">
+
+            <h2 style="margin-bottom:20px;">
+              Hello ${user.name},
+            </h2>
+
+            <p style="line-height:1.8;">
+              Thank you for booking with TripSnap.
+              Your payment has been received successfully.
+            </p>
+
+            <!-- BOOKING DETAILS -->
+            <div style="
+              margin-top:30px;
+              border:1px solid #e5e7eb;
+              border-radius:14px;
+              padding:30px;
+              background:#fafafa;
+            ">
+
+              <h3 style="
+                margin-top:0;
+                margin-bottom:25px;
+                color:#32AEBB;
+              ">
+                Booking Details
+              </h3>
+
+              <p style="margin:10px 0;">
+                <strong>Tour:</strong>
+                ${tour.title}
+              </p>
+
+              <p style="margin:10px 0;">
+                <strong>Package:</strong>
+                ${booking.packageType}
+              </p>
+
+              <p style="margin:10px 0;">
+                <strong>Quantity:</strong>
+                ${booking.quantity}
+              </p>
+
+              <p style="margin:10px 0;">
+                <strong>Travelers:</strong>
+                ${booking.travelers}
+              </p>
+
+              <p style="margin:10px 0;">
+                <strong>Total Amount:</strong>
+                ৳ ${booking.amount}
+              </p>
+
+              <p style="margin:10px 0;">
+                <strong>Tour Start Date:</strong>
+                ${new Date(
+        tour.startDate
+      ).toLocaleDateString()}
+              </p>
+
+              <p style="margin:10px 0;">
+                <strong>Tour End Date:</strong>
+                ${new Date(
+        tour.endDate
+      ).toLocaleDateString()}
+              </p>
+
+              <p style="margin:10px 0;">
+                <strong>Payment Status:</strong>
+
+                <span style="
+                  color:green;
+                  font-weight:bold;
+                ">
+                  Paid
+                </span>
+              </p>
+
+              <p style="margin:10px 0;">
+                <strong>Booking Date:</strong>
+                ${new Date(
+        booking.createdAt
+      ).toLocaleDateString()}
+              </p>
+
+            </div>
+
+            <!-- BUTTON -->
+            <div style="
+              margin-top:35px;
+              text-align:center;
+            ">
+
+              <a
+                href="http://localhost:5173/dashboard/user/my-tour"
+
+                style="
+                  display:inline-block;
+                  background:#32AEBB;
+                  color:white;
+                  text-decoration:none;
+                  padding:14px 30px;
+                  border-radius:10px;
+                  font-weight:bold;
+                  font-size:16px;
+                "
+              >
+                View My Tours
+              </a>
+
+            </div>
+
+          </div>
+
+          <!-- FOOTER -->
+          <div style="
+            background:#f3f4f6;
+            padding:20px;
+            text-align:center;
+            font-size:13px;
+            color:#666;
+          ">
+
+            © ${new Date().getFullYear()} TripSnap.
+            All rights reserved.
+
+          </div>
+
+        </div>
+
+      </div>
+      `
     );
   };
 

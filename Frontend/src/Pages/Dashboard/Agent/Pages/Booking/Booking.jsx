@@ -1,122 +1,99 @@
+
 import React, {
     useEffect,
-    useMemo,
     useState,
 } from "react";
-
-import {
-    FaSearch,
-    FaUser,
-    FaEnvelope,
-    FaPhone,
-    FaMapMarkedAlt,
-    FaCalendarAlt,
-    FaMoneyBillWave,
-} from "react-icons/fa";
-
-const API =
-    "http://localhost:3000/api";
+import { FaEnvelope, FaUser } from "react-icons/fa";
 
 const Booking = () => {
 
-    const [bookings,
-        setBookings] =
+    const [bookings, setBookings] =
         useState([]);
 
-    const [loading,
-        setLoading] =
+    const [loading, setLoading] =
         useState(true);
 
-    const [search,
-        setSearch] =
+    const [search, setSearch] =
         useState("");
 
-    // ================= FETCH =================
+    // =====================================
+    // FETCH BOOKINGS
+    // =====================================
+
     useEffect(() => {
-
-        const fetchBookings =
-            async () => {
-
-                try {
-
-                    const token =
-                        localStorage.getItem(
-                            "token"
-                        );
-
-                    const res =
-                        await fetch(
-                            `${API}/bookings`,
-                            {
-                                headers: {
-                                    Authorization:
-                                        `Bearer ${token}`,
-                                },
-                            }
-                        );
-
-                    const data =
-                        await res.json();
-
-                    if (data.success) {
-
-                        setBookings(
-                            data.data || []
-                        );
-                    }
-
-                } catch (err) {
-
-                    console.log(err);
-
-                } finally {
-
-                    setLoading(false);
-
-                }
-            };
 
         fetchBookings();
 
     }, []);
 
-    // ================= FILTER =================
-    const filteredBookings =
-        useMemo(() => {
+    const fetchBookings = async () => {
 
-            return bookings.filter(
-                (booking) => {
+        try {
 
-                    const keyword =
-                        search.toLowerCase();
+            const token =
+                localStorage.getItem(
+                    "token"
+                );
 
-                    return (
+            const res =
+                await fetch(
+                    "http://localhost:3000/api/bookings",
+                    {
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`,
+                        },
+                    }
+                );
 
-                        booking?.user?.name
-                            ?.toLowerCase()
-                            .includes(keyword)
+            const data =
+                await res.json();
 
-                        ||
-
-                        booking?.user?.email
-                            ?.toLowerCase()
-                            .includes(keyword)
-
-                        ||
-
-                        booking?.tour?.title
-                            ?.toLowerCase()
-                            .includes(keyword)
-                    );
-                }
+            setBookings(
+                data?.data || []
             );
 
-        }, [
-            bookings,
-            search,
-        ]);
+        } catch (err) {
 
-    // ================= TOTAL =================
+            console.log(err);
+
+        } finally {
+
+            setLoading(false);
+        }
+    };
+
+    // =====================================
+    // FILTER
+    // =====================================
+
+    const filteredBookings =
+        bookings.filter(
+            (booking) => {
+
+                const userName =
+                    booking?.user?.name
+                        ?.toLowerCase() || "";
+
+                const tourName =
+                    booking?.tour?.title
+                        ?.toLowerCase() || "";
+
+                return (
+                    userName.includes(
+                        search.toLowerCase()
+                    ) ||
+                    tourName.includes(
+                        search.toLowerCase()
+                    )
+                );
+            }
+        );
+
+    // =====================================
+    // TOTAL
+    // =====================================
+
     const totalBookings =
         filteredBookings.length;
 
@@ -128,273 +105,362 @@ const Booking = () => {
             ) =>
                 acc +
                 Number(
-                    booking.totalAmount
+                    booking.amount || 0
                 ),
             0
         );
 
+    // =====================================
+    // LOADING
+    // =====================================
+
     if (loading) {
 
         return (
-            <div className="p-10">
-                Loading...
+            <div className="flex items-center justify-center min-h-[60vh]">
+
+                <h2 className="text-3xl font-bold">
+                    Loading...
+                </h2>
+
             </div>
         );
     }
 
     return (
-        <div className="p-6">
+        <div className="p-4 md:p-8">
 
             {/* HEADER */}
-            <div className="flex justify-between items-center mb-10">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-8">
 
                 <div>
 
-                    <h2 className="text-4xl font-bold">
-                        Booking Management
+                    <h2 className="text-4xl font-black mb-2">
+                        Tour Bookings
                     </h2>
 
-                    <p className="text-gray-500 mt-2">
-                        Monitor all confirmed bookings
+                    <p className="text-gray-500">
+                        Manage all customer bookings
                     </p>
 
                 </div>
+
+                {/* SEARCH */}
+                <input
+                    type="text"
+                    placeholder="Search by user or tour"
+                    value={search}
+                    onChange={(e) =>
+                        setSearch(
+                            e.target.value
+                        )
+                    }
+                    className="border border-gray-300 rounded-2xl px-5 py-3 outline-none w-full lg:w-96"
+                />
 
             </div>
 
             {/* STATS */}
-            <div className="grid grid-cols-2 gap-6 mb-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
 
-                {/* TOTAL */}
-                <div className="bg-white rounded-3xl shadow border border-gray-100 p-6">
+                {/* TOTAL BOOKINGS */}
+                <div className="bg-white rounded-3xl shadow-md p-8 border">
 
-                    <h3 className="text-4xl font-bold">
-                        {
-                            totalBookings
-                        }
-                    </h3>
-
-                    <p className="text-gray-500 mt-2">
+                    <p className="text-gray-500 mb-3 text-lg">
                         Total Bookings
                     </p>
 
+                    <h2 className="text-5xl font-black text-[#32AEBB]">
+                        {totalBookings}
+                    </h2>
+
                 </div>
 
-                {/* REVENUE */}
-                <div className="bg-white rounded-3xl shadow border border-gray-100 p-6">
+                {/* TOTAL REVENUE */}
+                <div className="bg-white rounded-3xl shadow-md p-8 border">
 
-                    <h3 className="text-4xl font-bold text-[#32AEBB]">
-
-                        ৳
-                        {
-                            totalRevenue
-                        }
-
-                    </h3>
-
-                    <p className="text-gray-500 mt-2">
+                    <p className="text-gray-500 mb-3 text-lg">
                         Total Revenue
+                    </p>
+
+                    <h2 className="text-5xl font-black text-[#32AEBB]">
+                        ৳ {totalRevenue}
+                    </h2>
+
+                </div>
+
+            </div>
+
+            {/* EMPTY */}
+            {filteredBookings.length === 0 ? (
+
+                <div className="bg-white rounded-3xl p-16 text-center border shadow-sm">
+
+                    <h2 className="text-3xl font-black mb-3">
+                        No Booking Found
+                    </h2>
+
+                    <p className="text-gray-500">
+                        No customer bookings available.
                     </p>
 
                 </div>
 
-            </div>
+            ) : (
 
-            {/* SEARCH */}
-            <div className="bg-white rounded-3xl shadow border border-gray-100 p-5 mb-10">
+                <div className="grid grid-cols-1 gap-8">
 
-                <div className="relative">
+                    {filteredBookings.map(
+                        (booking) => (
 
-                    <FaSearch className="absolute top-1/2 left-4 -translate-y-1/2 text-gray-400" />
+                            <div
+                                key={
+                                    booking._id
+                                }
+                                className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition duration-300"
+                            >
 
-                    <input
-                        type="text"
-                        placeholder="Search booking by user or tour..."
-                        value={search}
-                        onChange={(e) =>
-                            setSearch(
-                                e.target.value
-                            )
-                        }
-                        className="w-full border rounded-2xl pl-12 pr-4 py-4 outline-none focus:border-[#32AEBB]"
-                    />
+                                <div className="grid grid-cols-1 lg:grid-cols-3">
 
-                </div>
+                                    {/* IMAGE */}
+                                    <div className="relative">
 
-            </div>
+                                        <img
+                                            src={`http://localhost:3000/${booking?.tour?.thumbnailCard}`}
+                                            className="h-full w-full object-cover lg:min-h-[420px]"
+                                        />
 
-            {/* BOOKING LIST */}
-            <div className="space-y-6">
+                                        {/* STATUS */}
+                                        <div
+                                            className={`absolute top-5 right-5 px-4 py-2 rounded-full text-sm font-bold text-white
 
-                {filteredBookings.map(
-                    (booking) => (
-
-                        <div
-                            key={
-                                booking._id
-                            }
-                            className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden"
-                        >
-
-                            <div className="grid grid-cols-3">
-
-                                {/* IMAGE */}
-                                <div className="relative">
-
-                                    <img
-                                        src={`http://localhost:3000/${booking?.tour?.thumbnailCard}`}
-                                        className="h-full w-full object-cover"
-                                    />
-
-                                </div>
-
-                                {/* INFO */}
-                                <div className="col-span-2 p-8">
-
-                                    {/* TITLE */}
-                                    <div className="mb-6">
-
-                                        <h3 className="text-3xl font-bold">
+                            ${booking.paymentStatus === "paid"
+                                                    ? "bg-green-500"
+                                                    : booking.paymentStatus === "pending"
+                                                        ? "bg-yellow-500"
+                                                        : booking.paymentStatus === "failed"
+                                                            ? "bg-red-500"
+                                                            : "bg-gray-500"
+                                                }
+                            `}
+                                        >
 
                                             {
-                                                booking
-                                                    ?.tour
-                                                    ?.title
+                                                booking.paymentStatus
                                             }
 
-                                        </h3>
-
-                                        <p className="text-gray-500 mt-2">
-
-                                            Booking ID:
-                                            {" "}
-                                            {
-                                                booking._id
-                                            }
-
-                                        </p>
+                                        </div>
 
                                     </div>
 
-                                    {/* USER */}
-                                    <div className="grid grid-cols-2 gap-6 mb-8">
+                                    {/* INFO */}
+                                    <div className="col-span-2 p-8">
 
-                                        {/* NAME */}
-                                        <div className="flex items-center gap-4">
+                                        {/* TITLE */}
+                                        <div className="mb-6">
 
-                                            <div className="bg-[#32AEBB]/10 p-4 rounded-2xl text-[#32AEBB]">
+                                            <h3 className="text-3xl font-bold">
 
-                                                <FaUser />
+                                                {
+                                                    booking
+                                                        ?.tour
+                                                        ?.title
+                                                }
+
+                                            </h3>
+
+                                            <p className="text-gray-500 mt-2">
+
+                                                Booking ID:
+                                                {" "}
+                                                {
+                                                    booking._id
+                                                }
+
+                                            </p>
+
+                                        </div>
+
+                                        {/* USER */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+                                            {/* NAME */}
+                                            <div className="flex items-center gap-4">
+
+                                                <div className="bg-[#32AEBB]/10 p-4 rounded-2xl text-[#32AEBB] text-xl">
+
+                                                    <FaUser />
+
+                                                </div>
+
+                                                <div>
+
+                                                    <p className="text-sm text-gray-500">
+                                                        Traveler
+                                                    </p>
+
+                                                    <h4 className="font-semibold text-lg">
+
+                                                        {
+                                                            booking
+                                                                ?.user
+                                                                ?.name
+                                                        }
+
+                                                    </h4>
+
+                                                </div>
 
                                             </div>
 
-                                            <div>
+                                            {/* EMAIL */}
+                                            <div className="flex items-center gap-4">
 
-                                                <p className="text-sm text-gray-500">
-                                                    Traveler
+                                                <div className="bg-[#32AEBB]/10 p-4 rounded-2xl text-[#32AEBB] text-xl">
+
+                                                    <FaEnvelope />
+
+                                                </div>
+
+                                                <div>
+
+                                                    <p className="text-sm text-gray-500">
+                                                        Email
+                                                    </p>
+
+                                                    <h4 className="font-semibold break-all">
+
+                                                        {
+                                                            booking
+                                                                ?.user
+                                                                ?.email
+                                                        }
+
+                                                    </h4>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                        {/* DETAILS */}
+                                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-5">
+
+                                            {/* PACKAGE */}
+                                            <div className="bg-gray-50 rounded-2xl p-5">
+
+                                                <p className="text-sm text-gray-500 mb-2">
+                                                    Package
                                                 </p>
 
-                                                <h4 className="font-semibold text-lg">
+                                                <h4 className="font-bold capitalize">
 
                                                     {
-                                                        booking
-                                                            ?.user
-                                                            ?.name
+                                                        booking.packageType
                                                     }
 
                                                 </h4>
 
                                             </div>
 
-                                        </div>
+                                            {/* DATE */}
+                                            <div className="bg-gray-50 rounded-2xl p-5">
 
-                                        {/* EMAIL */}
-                                        <div className="flex items-center gap-4">
-
-                                            <div className="bg-[#32AEBB]/10 p-4 rounded-2xl text-[#32AEBB]">
-
-                                                <FaEnvelope />
-
-                                            </div>
-
-                                            <div>
-
-                                                <p className="text-sm text-gray-500">
-                                                    Email
+                                                <p className="text-sm text-gray-500 mb-2">
+                                                    Tour Date
                                                 </p>
 
-                                                <h4 className="font-semibold">
+                                                <h4 className="font-bold">
 
                                                     {
-                                                        booking
-                                                            ?.user
-                                                            ?.email
+                                                        new Date(
+                                                            booking
+                                                                ?.tour
+                                                                ?.startDate
+                                                        ).toLocaleDateString()
+                                                    } - {
+                                                        new Date(
+                                                            booking
+                                                                ?.tour
+                                                                ?.endDate
+                                                        ).toLocaleDateString()
                                                     }
 
                                                 </h4>
 
                                             </div>
 
-                                        </div>
+                                            {/* PAYMENT */}
+                                            <div className="bg-gray-50 rounded-2xl p-5">
 
-                                    </div>
+                                                <p className="text-sm text-gray-500 mb-2">
+                                                    Payment
+                                                </p>
 
-                                    {/* DETAILS */}
-                                    <div className="grid grid-cols-3 gap-5">
+                                                <h4 className="font-bold text-[#32AEBB] text-xl">
 
-                                        {/* PACKAGE */}
-                                        <div className="bg-gray-50 rounded-2xl p-5">
+                                                    ৳
+                                                    {
+                                                        booking.amount
+                                                    }
 
-                                            <p className="text-sm text-gray-500 mb-2">
-                                                Package
-                                            </p>
+                                                </h4>
 
-                                            <h4 className="font-bold capitalize">
+                                            </div>
 
-                                                {
-                                                    booking.packageType
-                                                }
+                                            {/* TRAVELERS */}
+                                            <div className="bg-gray-50 rounded-2xl p-5">
 
-                                            </h4>
+                                                <p className="text-sm text-gray-500 mb-2">
+                                                    Travelers
+                                                </p>
 
-                                        </div>
+                                                <h4 className="font-bold">
 
-                                        {/* DATE */}
-                                        <div className="bg-gray-50 rounded-2xl p-5">
+                                                    {
+                                                        booking.travelers
+                                                    }
 
-                                            <p className="text-sm text-gray-500 mb-2">
-                                                Tour Date
-                                            </p>
+                                                </h4>
 
-                                            <h4 className="font-bold">
+                                            </div>
 
-                                                {
-                                                    new Date(
-                                                        booking
-                                                            ?.tour
-                                                            ?.startDate
-                                                    ).toLocaleDateString()
-                                                }
+                                            {/* QUANTITY */}
+                                            <div className="bg-gray-50 rounded-2xl p-5">
 
-                                            </h4>
+                                                <p className="text-sm text-gray-500 mb-2">
+                                                    Quantity
+                                                </p>
 
-                                        </div>
+                                                <h4 className="font-bold">
 
-                                        {/* PAYMENT */}
-                                        <div className="bg-gray-50 rounded-2xl p-5">
+                                                    {
+                                                        booking.quantity
+                                                    }
 
-                                            <p className="text-sm text-gray-500 mb-2">
-                                                Payment
-                                            </p>
+                                                </h4>
 
-                                            <h4 className="font-bold text-[#32AEBB]">
+                                            </div>
 
-                                                ৳
-                                                {
-                                                    booking.totalAmount
-                                                }
+                                            {/* BOOK DATE */}
+                                            <div className="bg-gray-50 rounded-2xl p-5">
 
-                                            </h4>
+                                                <p className="text-sm text-gray-500 mb-2">
+                                                    Booking Date
+                                                </p>
+
+                                                <h4 className="font-bold">
+
+                                                    {
+                                                        new Date(
+                                                            booking.createdAt
+                                                        ).toLocaleDateString()
+                                                    }
+
+                                                </h4>
+
+                                            </div>
 
                                         </div>
 
@@ -403,35 +469,15 @@ const Booking = () => {
                                 </div>
 
                             </div>
+                        )
+                    )}
 
-                        </div>
-
-                    )
-                )}
-
-            </div>
-
-            {/* EMPTY */}
-            {
-                filteredBookings.length === 0 && (
-
-                    <div className="bg-white rounded-3xl shadow border border-gray-100 p-20 text-center">
-
-                        <h3 className="text-3xl font-bold mb-3">
-                            No Booking Found
-                        </h3>
-
-                        <p className="text-gray-500">
-                            Try another search keyword
-                        </p>
-
-                    </div>
-
-                )
-            }
+                </div>
+            )}
 
         </div>
     );
 };
 
 export default Booking;
+

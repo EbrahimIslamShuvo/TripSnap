@@ -16,6 +16,7 @@ import { HiOutlinePhotograph } from "react-icons/hi";
 
 import BlogCard from "../../../Component/Card/BlogCard";
 import UserCardPlace from "../../../Component/Card/UserCardPlace";
+import TourCard from "../../../Component/Card/TourCard";
 
 const API =
     "http://localhost:3000/api";
@@ -39,6 +40,8 @@ const Home = () => {
 
     const [loading, setLoading] =
         useState(true);
+    const [tours, setTours] =
+        useState([]);
 
     // 🔥 USER
     const user = JSON.parse(
@@ -67,7 +70,14 @@ const Home = () => {
                         await fetch(
                             `${API}/places/all`
                         );
+                    const tourRes =
+                        await fetch(
+                            `${API}/tours`
+                        );
 
+
+                    const tourData =
+                        await tourRes.json();
                     const blogData =
                         await blogRes.json();
 
@@ -89,6 +99,17 @@ const Home = () => {
                             (p) =>
                                 p.isActive
                         );
+
+                    let activeTours =
+                        tourData.data || [];
+
+                    activeTours =
+                        activeTours.slice(
+                            0,
+                            3
+                        );
+
+                    setTours(activeTours);
 
                     // 🔥 FREE USER
                     if (
@@ -353,6 +374,53 @@ const Home = () => {
                         </div>
 
                     </div>
+
+                </div>
+
+            </section>
+
+            {/* ================= TOUR LIST ================= */}
+            <section className="max-w-7xl mx-auto px-6 py-16">
+
+                <div className="flex items-center justify-between mb-8">
+
+                    <div>
+
+                        <h2 className="text-3xl font-bold">
+                            Recent Tours
+                        </h2>
+
+                        <p className="text-gray-500 mt-1">
+                            Explore upcoming travel tours
+                        </p>
+
+                    </div>
+
+                    <button
+                        onClick={() =>
+                            navigate(
+                                "/tripsnap/tour"
+                            )
+                        }
+                        className="text-[#32AEBB] font-semibold"
+                    >
+                        View All →
+                    </button>
+
+                </div>
+
+                <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+                    {tours
+                        .slice(0, 3)
+                        .map((tour) => (
+
+                            <TourCard
+                                key={tour._id}
+                                tour={tour}
+                            />
+
+                        ))}
 
                 </div>
 

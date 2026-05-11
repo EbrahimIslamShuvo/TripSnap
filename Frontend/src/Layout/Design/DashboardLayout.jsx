@@ -17,7 +17,8 @@ import {
     FaEnvelope,
     FaUserTie,
     FaClipboardList,
-    FaUserPlus
+    FaUserPlus,
+    FaRoute
 } from "react-icons/fa";
 
 const DashboardLayout = () => {
@@ -154,6 +155,11 @@ const DashboardLayout = () => {
             name: "Places",
             path: "/dashboard/admin/place",
             icon: <FaMapMarkedAlt />,
+        },
+        {
+            name: "Tours",
+            path: "/dashboard/admin/tours",
+            icon: <FaRoute />,
         },
 
         {
