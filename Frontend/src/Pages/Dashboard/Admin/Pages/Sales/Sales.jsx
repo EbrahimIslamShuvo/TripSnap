@@ -13,6 +13,14 @@ import {
   FaPlaneDeparture,
 } from "react-icons/fa";
 
+import jsPDF from "jspdf";
+
+import autoTable from "jspdf-autotable";
+
+import {
+  FaFilePdf,
+} from "react-icons/fa";
+
 const PAYMENT_API =
   "http://localhost:3000/api/payment";
 
@@ -33,6 +41,31 @@ const Sales = () => {
 
   const [loading, setLoading] =
     useState(true);
+
+  const [selectedYear, setSelectedYear] =
+    useState(
+      new Date().getFullYear()
+    );
+
+  const [selectedMonth, setSelectedMonth] =
+    useState(
+      new Date().getMonth()
+    );
+
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
 
   // =====================================
   // FETCH
@@ -292,6 +325,370 @@ const Sales = () => {
         0
       );
 
+
+  // =====================================
+  // PDF REPORT
+  // =====================================
+
+  // =====================================
+  // PDF REPORT
+  // =====================================
+
+  // =====================================
+  // PDF REPORT
+  // =====================================
+
+  const generateReport =
+    async () => {
+
+      const token =
+        localStorage.getItem(
+          "token"
+        );
+
+      // ================= TOURS
+      const tourRes =
+        await fetch(
+          "http://localhost:3000/api/tours",
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+      const tourData =
+        await tourRes.json();
+
+      const allTours =
+        tourData.data || [];
+
+      // ================= FILTER TOUR LAUNCH
+      const launchedTours =
+        allTours.filter(
+          (tour) => {
+
+            const date =
+              new Date(
+                tour.createdAt
+              );
+
+            return (
+              date.getFullYear() ===
+              Number(
+                selectedYear
+              ) &&
+              date.getMonth() ===
+              Number(
+                selectedMonth
+              )
+            );
+          }
+        );
+
+      // ================= FILTER BOOKING
+      const monthBookings =
+        bookings.filter(
+          (booking) => {
+
+            const date =
+              new Date(
+                booking.createdAt
+              );
+
+            return (
+              date.getFullYear() ===
+              Number(
+                selectedYear
+              ) &&
+              date.getMonth() ===
+              Number(
+                selectedMonth
+              )
+            );
+          }
+        );
+
+      // ================= FILTER PAYMENT
+      const monthPayments =
+        payments.filter(
+          (payment) => {
+
+            const date =
+              new Date(
+                payment.createdAt
+              );
+
+            return (
+              date.getFullYear() ===
+              Number(
+                selectedYear
+              ) &&
+              date.getMonth() ===
+              Number(
+                selectedMonth
+              )
+            );
+          }
+        );
+
+      // ================= CALCULATION
+
+      const totalTourRevenue =
+        monthBookings.reduce(
+          (
+            total,
+            item
+          ) =>
+            total +
+            Number(
+              item.amount || 0
+            ),
+          0
+        );
+
+      const totalSubscriptionRevenue =
+        monthPayments.reduce(
+          (
+            total,
+            item
+          ) =>
+            total +
+            Number(
+              item.amount || 0
+            ),
+          0
+        );
+
+      // =====================================
+      // PDF
+      // =====================================
+
+      const doc =
+        new jsPDF();
+
+      doc.setFontSize(22);
+
+      doc.text(
+        "TripSnap Monthly Sales Report",
+        14,
+        20
+      );
+
+      doc.setFontSize(14);
+
+      doc.text(
+        `Month: ${months[
+        selectedMonth
+        ]
+        } ${selectedYear}`,
+        14,
+        32
+      );
+
+      // ================= SUMMARY TABLE
+
+      autoTable(doc, {
+        startY: 45,
+
+        head: [
+          [
+            "Report Type",
+            "Count",
+            "Revenue",
+          ],
+        ],
+
+        body: [
+          [
+            "Tour Launch",
+            launchedTours.length,
+            "-",
+          ],
+
+          [
+            "Tour Booking",
+            monthBookings.length,
+            `Tk ${totalTourRevenue}`,
+          ],
+
+          [
+            "Subscriptions",
+            monthPayments.length,
+            `Tk ${totalSubscriptionRevenue}`,
+          ],
+
+          [
+            "Total Revenue",
+            "-",
+            `Tk ${totalTourRevenue +
+            totalSubscriptionRevenue
+            }`,
+          ],
+        ],
+      });
+
+      // =====================================
+      // TOUR SUMMARY
+      // =====================================
+
+      const groupedTours =
+        {};
+
+      monthBookings.forEach(
+        (booking) => {
+
+          const title =
+            booking?.tour
+              ?.title ||
+            "Unknown";
+
+          if (
+            !groupedTours[
+            title
+            ]
+          ) {
+
+            groupedTours[
+              title
+            ] = {
+
+              totalBooking: 0,
+
+              totalSell: 0,
+            };
+          }
+
+          groupedTours[
+            title
+          ].totalBooking += 1;
+
+          groupedTours[
+            title
+          ].totalSell +=
+            Number(
+              booking.amount || 0
+            );
+        }
+      );
+
+      autoTable(doc, {
+        startY:
+          doc.lastAutoTable
+            .finalY + 15,
+
+        head: [
+          [
+            "Tour Name",
+            "Total Booking",
+            "Total Sell",
+          ],
+        ],
+
+        body:
+          Object.entries(
+            groupedTours
+          ).map(
+            ([
+              title,
+              data,
+            ]) => [
+
+                title,
+
+                data.totalBooking,
+
+                `Tk ${data.totalSell}`,
+              ]
+          ),
+      });
+
+      // =====================================
+      // SUBSCRIPTION SUMMARY
+      // =====================================
+
+      const groupedPlans =
+        {};
+
+      monthPayments.forEach(
+        (payment) => {
+
+          const plan =
+            payment.plan;
+
+          if (
+            !groupedPlans[
+            plan
+            ]
+          ) {
+
+            groupedPlans[
+              plan
+            ] = {
+
+              totalUser: 0,
+
+              totalSell: 0,
+            };
+          }
+
+          groupedPlans[
+            plan
+          ].totalUser += 1;
+
+          groupedPlans[
+            plan
+          ].totalSell +=
+            Number(
+              payment.amount || 0
+            );
+        }
+      );
+
+      autoTable(doc, {
+        startY:
+          doc.lastAutoTable
+            .finalY + 15,
+
+        head: [
+          [
+            "Subscription Plan",
+            "Total Users",
+            "Total Sell",
+          ],
+        ],
+
+        body:
+          Object.entries(
+            groupedPlans
+          ).map(
+            ([
+              plan,
+              data,
+            ]) => [
+
+                plan,
+
+                data.totalUser,
+
+                `Tk ${data.totalSell}`,
+              ]
+          ),
+      });
+
+      // =====================================
+      // SAVE PDF
+      // =====================================
+
+      doc.save(
+        `sales-report-${months[
+        selectedMonth
+        ]
+        }-${selectedYear}.pdf`
+      );
+    };
+
   // =====================================
   // UI
   // =====================================
@@ -545,6 +942,139 @@ const Sales = () => {
                   </span>
 
                 </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* ===================================== */}
+          {/* MONTHLY REPORT */}
+          {/* ===================================== */}
+
+          <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-8 mb-10">
+
+            <div className="flex items-center justify-between mb-8">
+
+              <div>
+
+                <h2 className="text-3xl font-bold text-gray-800">
+
+                  Monthly Report Generator
+
+                </h2>
+
+                <p className="text-gray-500 mt-2">
+
+                  Download sales report by month & year
+
+                </p>
+
+              </div>
+
+              <div className="w-16 h-16 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center text-3xl">
+
+                <FaFilePdf />
+
+              </div>
+
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-5">
+
+              {/* YEAR */}
+              <div>
+
+                <label className="block mb-2 font-semibold text-gray-700">
+
+                  Select Year
+
+                </label>
+
+                <select
+                  value={
+                    selectedYear
+                  }
+                  onChange={(e) =>
+                    setSelectedYear(
+                      e.target.value
+                    )
+                  }
+                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 outline-none focus:border-[#32AEBB]"
+                >
+
+                  {[2024, 2025, 2026, 2027, 2028].map(
+                    (year) => (
+
+                      <option
+                        key={year}
+                        value={year}
+                      >
+                        {year}
+                      </option>
+                    )
+                  )}
+
+                </select>
+
+              </div>
+
+              {/* MONTH */}
+              <div>
+
+                <label className="block mb-2 font-semibold text-gray-700">
+
+                  Select Month
+
+                </label>
+
+                <select
+                  value={
+                    selectedMonth
+                  }
+                  onChange={(e) =>
+                    setSelectedMonth(
+                      e.target.value
+                    )
+                  }
+                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 outline-none focus:border-[#32AEBB]"
+                >
+
+                  {months.map(
+                    (
+                      month,
+                      index
+                    ) => (
+
+                      <option
+                        key={index}
+                        value={index}
+                      >
+                        {month}
+                      </option>
+                    )
+                  )}
+
+                </select>
+
+              </div>
+
+              {/* BUTTON */}
+              <div className="flex items-end">
+
+                <button
+                  onClick={
+                    generateReport
+                  }
+                  className="w-full bg-[#32AEBB] hover:bg-[#2897a4] text-white py-4 rounded-2xl font-bold transition flex items-center justify-center gap-3"
+                >
+
+                  <FaFilePdf />
+
+                  Generate PDF Report
+
+                </button>
 
               </div>
 

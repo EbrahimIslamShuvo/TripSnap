@@ -607,7 +607,7 @@ const SingleBlog = () => {
                   <button
                     onClick={() =>
                     (window.location.href =
-                      `/dashboard/creator/edit-blog/${blog._id}`)
+                      `/dashboard/traveler/edit-blog/${blog._id}`)
                     }
                     className="px-4 py-2 rounded-full bg-blue-500 text-white text-sm"
                   >
